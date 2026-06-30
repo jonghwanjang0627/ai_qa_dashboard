@@ -1,0 +1,2551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LG Electronics | Global QA Evaluation Dashboard v13</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&family=Playfair+Display:ital,wght@1,500;1,600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{--lg-active-red:#FD312E;--lg-heritage-red:#A50034;--lg-black:#000000;--lg-white:#FFFFFF;--lg-warm-grey:#F0ECE4;--lg-light-grey-1:#F6F3EB;--lg-light-grey-2:#F0ECE4;--lg-light-grey-3:#E6E1D6;--lg-mid-grey-1:#CBC8C2;--lg-mid-grey-2:#7E7C77;--lg-mid-grey-3:#4A4946;--lg-dark-grey-1:#333333;--lg-dark-grey-2:#262626;--lg-dark-grey-3:#1A1A1A;--bg:#F6F3EB;--surface:#FFFFFF;--text:#1A1A1A;--text-sub:#7E7C77;--text-mid:#4A4946;--border:#E6E1D6;--border-strong:#000000;--success:#287D00;--warning:#F7B500;--danger:#FD312E;--info:#076369;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter','Roboto','Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;letter-spacing:-0.01em;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+header{background:var(--surface);border-bottom:4px solid var(--lg-heritage-red);padding:18px 32px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 3px rgba(0,0,0,.04);position:sticky;top:0;z-index:100}
+.logo{display:flex;align-items:center;gap:16px}
+.logo-mark{display:flex;align-items:center;justify-content:center;flex:0 0 auto;height:56px}
+.logo-mark img{height:56px;width:auto;display:block;object-fit:contain}
+.logo-text h1{font-size:19px;font-weight:600;color:var(--lg-heritage-red);letter-spacing:-0.02em;line-height:1.2;font-family:'Inter','Roboto',sans-serif}
+.logo-text p{font-size:12px;color:var(--text-sub);font-weight:400;margin-top:3px;letter-spacing:-0.005em}
+.header-right{display:flex;align-items:center;gap:22px;font-size:13px;color:var(--text-sub)}
+.tagline-block{text-align:right;line-height:1;padding-right:8px;border-right:1px solid var(--border)}
+.tagline{font-family:'Playfair Display','Times New Roman',serif;font-style:italic;font-weight:500;font-size:20px;color:var(--lg-heritage-red);letter-spacing:-0.015em;display:block}
+.tagline-sub{font-size:9px;color:var(--text-sub);text-transform:uppercase;letter-spacing:1.4px;font-weight:500;margin-top:4px;display:block}
+.user-badge{display:flex;align-items:center;gap:8px}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:var(--lg-active-red);color:#fff;display:grid;place-items:center;font-weight:700;font-size:13px}
+.breadcrumb{padding:14px 32px;font-size:13px;color:var(--text-sub);display:flex;align-items:center;gap:8px;letter-spacing:-0.01em}
+.breadcrumb a{color:var(--lg-active-red);text-decoration:none;cursor:pointer;font-weight:500}
+.breadcrumb a:hover{text-decoration:underline}
+.filter-bar{background:var(--surface);margin:0 32px;padding:18px 22px;border-radius:16px;display:flex;flex-direction:column;gap:14px;box-shadow:0 1px 3px rgba(0,0,0,.04);border:1px solid var(--border)}
+.filter-row{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end}
+.filter-row.divider{padding-top:14px;border-top:1px dashed var(--border)}
+.filter-group{display:flex;flex-direction:column;gap:4px}
+.filter-group label{font-size:11px;color:var(--text-sub);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.filter-group select,.filter-group input[type=text]{padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:#fff;min-width:140px;cursor:pointer;font-family:inherit}
+.filter-group select:focus,.filter-group input:focus{outline:none;border-color:var(--lg-active-red)}
+.date-icon-wrap{position:relative;display:inline-flex;align-items:center;height:34px}
+.date-icon-btn{width:38px;height:34px;border:1px solid var(--border);background:#fff;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative;font-family:inherit}
+.date-icon-btn:hover{border-color:var(--lg-active-red);background:#FFF5F5}
+.date-icon-btn.active{border-color:var(--lg-active-red);background:#FFF0F0}
+.date-dot{position:absolute;top:3px;right:3px;width:8px;height:8px;border-radius:50%;background:var(--lg-active-red);border:1.5px solid #fff}
+.date-popup{position:absolute;top:calc(100% + 6px);left:0;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.12);padding:14px;width:320px;z-index:60;display:none}
+.date-popup.open{display:block}
+.date-popup-title{font-size:13px;font-weight:700;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.date-popup-presets{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.preset-btn{padding:5px 10px;border:1px solid var(--border);background:#fff;border-radius:14px;font-size:11px;cursor:pointer;color:var(--text-sub);font-family:inherit}
+.preset-btn:hover{border-color:var(--lg-active-red);color:var(--lg-active-red);background:#FFF5F5}
+.preset-btn.active{border-color:var(--lg-active-red);background:var(--lg-active-red);color:#fff}
+.date-popup-row{display:flex;gap:10px;margin-bottom:12px}
+.date-popup-field{flex:1;display:flex;flex-direction:column;gap:3px}
+.date-popup-field label{font-size:10px;color:var(--text-sub);font-weight:600;text-transform:uppercase}
+.date-popup-field input{padding:6px 10px;border:1px solid var(--border);border-radius:5px;font-size:13px;font-family:inherit}
+.date-popup-actions{display:flex;justify-content:flex-end;gap:8px;padding-top:8px;border-top:1px solid var(--border)}
+.btn-cancel{padding:6px 14px;background:#fff;color:var(--text-sub);border:1px solid var(--border);border-radius:5px;cursor:pointer;font-size:12px;font-family:inherit}
+.btn-apply-small{padding:6px 14px;background:var(--lg-active-red);color:#fff;border:none;border-radius:5px;cursor:pointer;font-size:12px;font-weight:500;font-family:inherit}
+.multi-select{position:relative;min-width:220px}
+.multi-select-toggle{padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:34px}
+.multi-select-toggle:hover{border-color:var(--lg-active-red)}
+.multi-select-toggle .arrow{font-size:10px;color:var(--text-sub)}
+.multi-select-menu{position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1px solid var(--border);border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,.08);max-height:340px;overflow:hidden;z-index:50;display:none;flex-direction:column}
+.multi-select-menu.open{display:flex}
+.ms-search{padding:8px;border-bottom:1px solid var(--border);background:#FAFAFB}
+.ms-search input{width:100%;padding:6px 10px;border:1px solid var(--border);border-radius:4px;font-size:12px}
+.ms-list{overflow-y:auto;max-height:260px;flex:1}
+.multi-select-item{padding:7px 12px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:8px;border-bottom:1px solid #F0F0F2}
+.multi-select-item:hover{background:#FAFAFB}
+.multi-select-item input[type=checkbox]{accent-color:var(--lg-active-red)}
+.multi-select-item.all-item{font-weight:600;background:#FAFAFB;border-bottom:2px solid var(--border)}
+.region-header{font-size:10px;text-transform:uppercase;color:var(--text-sub);background:#F4F5F7;padding:4px 12px;font-weight:700}
+.ms-tag{display:inline-block;padding:2px 6px;background:var(--lg-active-red);color:#fff;border-radius:10px;font-size:10px;font-weight:600}
+.icon-select{position:relative;min-width:170px}
+.icon-select-toggle{padding:8px 12px;border:1px solid var(--border);border-radius:6px;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px;min-height:34px}
+.icon-select-toggle:hover{border-color:var(--lg-active-red)}
+.icon-select-menu{position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1px solid var(--border);border-radius:8px;box-shadow:0 6px 16px rgba(0,0,0,.1);z-index:50;display:none}
+.icon-select-menu.open{display:block}
+.icon-option{padding:9px 14px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:10px;border-bottom:1px solid #F4F5F7}
+.icon-option:hover{background:#FFF5F5}
+.icon-option.selected{background:#FFF0F0;color:var(--lg-heritage-red);font-weight:600}
+.icon-option .check{margin-left:auto;color:var(--lg-active-red);visibility:hidden}
+.icon-option.selected .check{visibility:visible}
+.icon-option .dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.channel-group{display:inline-flex;background:#F4F5F7;border-radius:10px;padding:4px;gap:2px}
+.channel-btn{padding:7px 16px;border:none;background:transparent;border-radius:7px;cursor:pointer;font-size:13px;font-weight:500;color:var(--text-sub);display:flex;align-items:center;gap:6px;font-family:inherit}
+.channel-btn.active{background:var(--lg-active-red);color:#fff}
+.btn-apply{align-self:flex-end;padding:11px 22px;background:var(--lg-active-red);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:500;font-size:13px;font-family:inherit;letter-spacing:-0.01em;transition:background .15s}
+.btn-apply:hover{background:var(--lg-heritage-red)}
+.btn-reset{align-self:flex-end;padding:11px 18px;background:#fff;color:#000;border:1.5px solid #000;border-radius:8px;cursor:pointer;font-weight:500;font-size:13px;font-family:inherit;letter-spacing:-0.01em;transition:background .15s,color .15s}
+.btn-reset:hover{background:#000;color:#fff}
+main{padding:20px 32px 40px}
+.page{display:none}
+.page.active{display:block}
+.kpi-section-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:8px;letter-spacing:-0.02em}
+.kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:22px}
+.kpi-card-v2{background:#fff;border-radius:16px;padding:20px 18px;box-shadow:0 1px 3px rgba(0,0,0,.06);border-top:5px solid;border-right:1px solid var(--border);border-bottom:1px solid var(--border);border-left:1px solid var(--border);text-align:center;position:relative}
+.kpi-card-v2.blue{border-top-color:#3B82F6}
+.kpi-card-v2.purple{border-top-color:#8B5CF6}
+.kpi-card-v2.green{border-top-color:#287D00}
+.kpi-card-v2.red{border-top-color:#FD312E}
+.kpi-card-v2.yellow{border-top-color:#F7B500}
+.kpi-card-v2 .kpi-label{font-size:13px;color:var(--text);font-weight:600;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:6px}
+.kpi-card-v2 .kpi-val{font-size:30px;font-weight:700;display:flex;align-items:baseline;justify-content:center;gap:4px}
+.kpi-card-v2 .kpi-val .num{font-size:34px;font-weight:700}
+.kpi-card-v2 .kpi-val .unit{font-size:14px;font-weight:600;color:var(--text-sub)}
+.kpi-card-v2.blue .num{color:#3B82F6}
+.kpi-card-v2.purple .num{color:#8B5CF6}
+.kpi-card-v2.green .num{color:#287D00}
+.kpi-card-v2.red .num{color:#FD312E}
+.kpi-card-v2.yellow .num{color:#F7B500}
+.kpi-card-v2 .kpi-sub{font-size:12px;color:var(--text-sub);margin-top:8px;line-height:1.4}
+.kpi-card-v2 .kpi-sub strong{color:var(--text);font-weight:600}
+.kpi-card-v2 .kpi-sub-2{font-size:10px;color:var(--text-sub);margin-top:2px}
+.kpi-card-v2 .kpi-delta.up{color:#287D00}
+.kpi-card-v2 .kpi-delta.down{color:#FD312E}
+.chart-grid{display:grid;gap:16px;margin-bottom:16px}
+.chart-grid.col-2{grid-template-columns:1.2fr 1fr}
+.chart-grid.col-1{grid-template-columns:1fr}
+.chart-grid.col-trend{grid-template-columns:1.6fr 1fr}
+.card{background:var(--surface);border-radius:16px;padding:22px;box-shadow:0 1px 3px rgba(0,0,0,.04);border:1px solid var(--border)}
+.card-title{font-size:15px;font-weight:600;margin-bottom:4px;display:flex;align-items:center;justify-content:space-between;letter-spacing:-0.02em}
+.card-subtitle{font-size:12px;color:var(--text-sub);margin-bottom:16px}
+.chart-wrap{position:relative;height:480px}
+.chart-wrap.tall{height:680px}
+.chart-wrap.short{height:240px}
+.chart-wrap.med{height:320px}
+.chart-wrap.trend{height:380px}
+/* === v8/v10: Enhanced Category Performance Heatmap === */
+.heatmap-wrap{max-height:680px;overflow-y:auto;border:1px solid #F0F0F2;border-radius:8px;background:#FAFAFB;padding:8px;position:relative}
+.heatmap-legend{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;padding:10px 12px;background:#FAFAFB;border-radius:8px;border:1px solid #F0F0F2}
+.heatmap-legend-title{font-weight:700;color:var(--text-sub);text-transform:uppercase;letter-spacing:.5px;font-size:10px;margin-right:4px}
+.heatmap-legend-chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:12px;font-weight:700;font-size:11px;border:1px solid rgba(0,0,0,.06)}
+.heatmap-legend-chip .swatch{width:11px;height:11px;border-radius:50%;display:inline-block;box-shadow:0 0 0 1.5px rgba(255,255,255,.6),0 1px 2px rgba(0,0,0,.15)}
+.heatmap{display:grid;grid-template-columns:140px 74px 18px repeat(4,1fr);gap:3px;font-size:12px;align-items:stretch}
+.heatmap-header{font-weight:700;text-align:center;padding:11px 4px;color:var(--text-sub);font-size:10px;text-transform:uppercase;letter-spacing:.4px;position:sticky;top:0;background:#FAFAFB;z-index:5;border-bottom:1px solid var(--border)}
+.heatmap-header.total-h{color:var(--lg-heritage-red);font-weight:800;border-bottom:3px solid var(--lg-active-red);background:#FFF5F5;border-radius:5px 5px 0 0}
+.heatmap-spacer{background:transparent}
+.heatmap-cell{padding:11px 6px;text-align:center;border-radius:5px;font-weight:700;cursor:pointer;transition:transform .12s,box-shadow .12s;font-size:13px;letter-spacing:-.2px;display:flex;align-items:center;justify-content:center;min-height:40px;border:1px solid rgba(255,255,255,.3)}
+.heatmap-cell:hover{transform:scale(1.08);box-shadow:0 4px 14px rgba(0,0,0,.2);z-index:3;position:relative}
+.heatmap-cell.text-light{color:#fff;text-shadow:0 1px 1px rgba(0,0,0,.22)}
+.heatmap-cell.text-dark{color:#1F2937;text-shadow:0 1px 0 rgba(255,255,255,.5)}
+.heatmap-cell.total{font-size:14.5px;font-weight:800;box-shadow:inset 0 0 0 2px rgba(255,255,255,.6),0 2px 8px rgba(0,0,0,.15);letter-spacing:-.3px;border:2px solid var(--lg-heritage-red)}
+.heatmap-label{padding:8px 10px;font-weight:600;text-align:left;display:flex;flex-direction:column;justify-content:center;font-size:12px;background:#FFFFFF;border-radius:5px;border-left:3px solid transparent;line-height:1.2}
+.heatmap-label .lbl-code{font-weight:700;font-size:12.5px;color:var(--text)}
+.heatmap-label .lbl-name{font-weight:500;font-size:10px;color:var(--text-sub);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:118px}
+.heatmap-region-header{grid-column:1 / -1;background:linear-gradient(90deg,#FFF0F0 0%,#FFFFFF 70%);color:var(--lg-heritage-red);padding:9px 14px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;border-radius:6px;margin-top:8px;display:flex;align-items:center;gap:10px;border-left:5px solid var(--lg-heritage-red);box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.heatmap-region-header .reg-name{flex:1}
+.heatmap-region-header .reg-count{background:var(--lg-active-red);color:#fff;padding:2px 10px;border-radius:10px;font-size:10px;font-weight:800;letter-spacing:.3px}
+.heatmap-region-header .reg-avg{font-size:10px;color:var(--text-sub);font-weight:600;text-transform:none;letter-spacing:normal}
+.heatmap-row-zebra-label{background:#F7F8FA !important}
+/* === v10: Monthly Performance Trend Table === */
+.trend-table-wrap{max-height:380px;overflow-y:auto;border:1px solid #F0F0F2;border-radius:8px;background:#fff}
+.trend-table{width:100%;border-collapse:collapse;font-size:11.5px;font-variant-numeric:tabular-nums}
+.trend-table thead th{position:sticky;top:0;background:#FAFAFB;color:var(--text-sub);padding:10px 6px;font-size:10px;font-weight:700;text-transform:uppercase;text-align:center;border-bottom:2px solid var(--border);z-index:2;letter-spacing:.3px}
+.trend-table thead th.sub-h{text-align:left;padding-left:12px}
+.trend-table thead th.cum-h{color:var(--lg-heritage-red);background:#FFF5F5;border-left:2px solid #FECACA}
+.trend-table tbody td{padding:9px 6px;border-bottom:1px solid #F4F5F7;text-align:center;font-size:12px}
+.trend-table tbody td.sub-c{text-align:left;padding-left:12px;font-weight:700;display:flex;align-items:center;gap:6px;border-bottom:1px solid #F4F5F7}
+.trend-table tbody tr:hover td{background:#FFF5F5}
+.trend-table tbody td.up-cell{color:#10B981;font-weight:700}
+.trend-table tbody td.dn-cell{color:#EF4444;font-weight:700}
+.trend-table tfoot td{padding:10px 6px;border-top:2px solid var(--lg-active-red);background:#FFF5F5;font-weight:800;text-align:center;font-size:12px;color:var(--lg-heritage-red)}
+.trend-table tfoot td.sub-c{text-align:left;padding-left:12px}
+.trend-dot{display:inline-block;width:10px;height:10px;border-radius:50%;flex-shrink:0;box-shadow:0 0 0 2px rgba(255,255,255,.8),0 1px 2px rgba(0,0,0,.15)}
+.trend-cum{background:#FFF0F0 !important;color:var(--lg-heritage-red);font-weight:800;border-left:2px solid #FECACA}
+.trend-arrow-cell{font-weight:700;font-size:12px;white-space:nowrap}
+.trend-arrow-cell.up{color:#10B981}
+.trend-arrow-cell.dn{color:#EF4444}
+.trend-arrow-cell.eq{color:#9CA3AF}
+.active-filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;background:#FFF0F0;border:1px solid #FECACA;border-radius:14px;font-size:12px;color:var(--lg-heritage-red);font-weight:500}
+.chip .x{cursor:pointer;font-weight:700;opacity:.6}
+.chip .x:hover{opacity:1}
+.gauge-card{display:flex;flex-direction:column;align-items:center;justify-content:center}
+.gauge-wrap{position:relative;width:240px;height:160px}
+.gauge-value{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);text-align:center}
+.gauge-value .num{font-size:36px;font-weight:700;color:var(--lg-heritage-red)}
+.gauge-value .lbl{font-size:11px;color:var(--text-sub);text-transform:uppercase}
+.summary-row{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:16px}
+.summary-box{padding:14px;border-radius:8px;background:#FAFAFB;border-left:3px solid var(--lg-active-red)}
+.summary-box.good{border-left-color:var(--success)}
+.summary-box.bad{border-left-color:var(--danger)}
+.summary-box .label{font-size:11px;color:var(--text-sub);font-weight:500;text-transform:uppercase}
+.summary-box .name{font-size:14px;font-weight:600;margin-top:4px}
+.summary-box .score{font-size:13px;color:var(--text-sub);margin-top:2px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:10px 12px;background:#FAFAFB;font-weight:600;color:var(--text-sub);font-size:11px;text-transform:uppercase;border-bottom:1px solid var(--border)}
+td{padding:11px 12px;border-bottom:1px solid var(--border)}
+.rank{display:inline-block;width:22px;height:22px;border-radius:50%;background:var(--lg-heritage-red);color:#fff;text-align:center;line-height:22px;font-size:11px;font-weight:700}
+.rank.bottom{background:var(--text-sub)}
+.score-pill{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600}
+.score-pill.high{background:#D1FAE5;color:#065F46}
+.score-pill.low{background:#FEE2E2;color:#991B1B}
+.tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600}
+.tag.critical{background:#FEE2E2;color:#991B1B}
+.raw-card{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.04);border:1px solid var(--border)}
+.raw-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 24px;background:#FAFAFB;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.raw-header-left{display:flex;align-items:center;gap:14px}
+.raw-icon-circle{width:42px;height:42px;border-radius:50%;background:var(--lg-active-red);color:#fff;display:grid;place-items:center;font-size:18px}
+.raw-header h3{font-size:16px;font-weight:700;margin:0}
+.raw-header p{font-size:12px;color:var(--text-sub);margin:0;margin-top:2px}
+.raw-header-right{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.toggle-group{display:inline-flex;background:#F4F5F7;border-radius:10px;padding:3px;border:1px solid var(--border)}
+.toggle-btn{padding:6px 14px;border:none;background:transparent;border-radius:7px;cursor:pointer;font-size:12px;color:var(--text-sub);font-family:inherit}
+.toggle-btn.active{background:var(--lg-active-red);color:#fff;font-weight:600}
+.chip-group{display:inline-flex;gap:6px;flex-wrap:wrap}
+.chip-btn{padding:5px 11px;background:#fff;border:1px solid var(--border);border-radius:14px;font-size:11px;color:var(--text-sub);cursor:pointer;font-family:inherit}
+.chip-btn:hover{border-color:var(--lg-active-red);color:var(--lg-active-red)}
+.chip-btn.active{border-color:var(--lg-active-red);background:#FFF0F0;color:var(--lg-heritage-red);font-weight:600}
+.btn-download{padding:10px 16px;background:var(--lg-active-red);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-family:inherit;letter-spacing:-0.01em;transition:background .15s}
+.btn-download:hover{background:var(--lg-heritage-red)}
+.btn-download.outline{background:#fff;color:var(--lg-active-red);border:1px solid var(--lg-active-red)}
+.btn-download.outline:hover{background:var(--lg-active-red);color:#fff}
+.raw-filter-row{display:grid;grid-template-columns:1.4fr 1fr 1fr 1.2fr .7fr .7fr 1fr auto;gap:14px;padding:16px 24px;background:#fff;border-bottom:1px solid var(--border);align-items:flex-end}
+.raw-filter-row .filter-group label{font-size:11px;color:var(--text-sub);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.raw-filter-row .filter-group select,.raw-filter-row .filter-group input{padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:#fff;font-family:inherit;width:100%;min-width:0}
+.raw-filter-row .filter-group select:focus,.raw-filter-row .filter-group input:focus{outline:none;border-color:var(--lg-active-red)}
+.raw-summary{padding:12px 24px;font-size:12px;color:var(--text-sub);display:flex;justify-content:space-between;background:#fff}
+.raw-summary strong{color:var(--text);font-weight:700}
+.raw-table-wrap{overflow-x:auto;background:#fff}
+.raw-table{width:100%;border-collapse:collapse;font-size:12px}
+.raw-table thead th{background:#FAFAFB;color:var(--text-sub);padding:10px 14px;font-size:10px;font-weight:700;text-transform:uppercase;text-align:left;border-bottom:1px solid var(--border)}
+.raw-table tbody td{padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:middle}
+.raw-table tbody tr{cursor:pointer}
+.raw-table tbody tr:hover td{background:#FFF5F5}
+.raw-id{font-family:'Roboto Mono',monospace;font-size:11px;word-break:break-all;display:inline-block;max-width:170px}
+.raw-datetime{font-size:11px;line-height:1.4}
+.raw-datetime span{display:block;color:var(--text-sub);font-size:10px}
+.raw-action-btn{width:28px;height:28px;border-radius:50%;background:#fff;border:1px solid var(--border);color:var(--lg-active-red);cursor:pointer;display:grid;place-items:center;font-size:13px;font-family:inherit}
+.raw-action-btn:hover{background:var(--lg-active-red);color:#fff;border-color:var(--lg-active-red)}
+.progress-wrap{display:flex;align-items:center;gap:8px;min-width:100px}
+.progress-bar{flex:1;height:5px;background:#F1F1F2;border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;border-radius:3px}
+.progress-num{font-size:11px;font-weight:700;min-width:24px;text-align:right}
+.status-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600}
+.status-pill::before{content:'';width:6px;height:6px;border-radius:50%;display:inline-block}
+.status-pill.pending{background:#FEF3C7;color:#92400E}
+.status-pill.pending::before{background:#F7B500}
+.status-pill.analyzed{background:#D1FAE5;color:#065F46}
+.status-pill.analyzed::before{background:#287D00}
+.status-pill.completed{background:#DBEAFE;color:#1E40AF}
+.status-pill.completed::before{background:#3B82F6}
+.queue-cell{font-size:11px;font-weight:500}
+.qa-page-bg{background:linear-gradient(180deg,#FFF5F5 0%,#FEF5F5 100%);min-height:100vh}
+.qa-header{display:flex;align-items:center;justify-content:space-between;padding:20px 32px}
+.qa-header-left{display:flex;align-items:center;gap:16px}
+.qa-back-btn{width:36px;height:36px;border-radius:50%;background:#fff;border:1px solid var(--border);cursor:pointer;display:grid;place-items:center;font-size:16px;font-family:inherit;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.qa-back-btn:hover{background:#FFF5F5;border-color:var(--lg-active-red);color:var(--lg-active-red)}
+.qa-title{font-size:20px;font-weight:700}
+.qa-score-wrap{position:relative;padding-bottom:18px}
+.qa-score-circle{width:72px;height:72px;border-radius:50%;background:conic-gradient(#F59E0B 0% 64%,#F1F1F2 64% 100%);display:grid;place-items:center;position:relative}
+.qa-score-circle::after{content:'';position:absolute;width:56px;height:56px;border-radius:50%;background:#FFF5F5}
+.qa-score-inner{position:relative;z-index:1;text-align:center;font-size:13px;font-weight:700;color:#F59E0B;line-height:1.1}
+.qa-score-inner small{font-size:9px;color:var(--text-sub);font-weight:500;display:block}
+.qa-score-label{position:absolute;bottom:-18px;font-size:10px;color:var(--text-sub);white-space:nowrap;left:50%;transform:translateX(-50%)}
+.qa-meta-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 32px 20px;font-size:13px}
+.qa-meta-bar .meta-item{display:inline-flex;align-items:center;gap:6px;margin-right:8px}
+.qa-meta-bar .meta-item .icon{color:var(--lg-active-red)}
+.qa-meta-bar .sep{color:var(--text-sub);margin:0 4px}
+.qa-tabs{display:flex;gap:0;margin:0 32px;background:#F4F5F7;border-radius:10px;padding:5px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.qa-tab{flex:1;padding:11px 16px;background:transparent;border:none;border-radius:7px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-sub);font-family:inherit}
+.qa-tab:hover{color:var(--text)}
+.qa-tab.active{background:var(--lg-active-red);color:#fff;box-shadow:0 1px 3px rgba(253,49,46,.4)}
+.qa-content{padding:20px 32px 40px}
+.qa-tab-panel{display:none}
+.qa-tab-panel.active{display:block}
+.qa-card{background:#fff;border-radius:12px;padding:20px 24px;box-shadow:0 1px 3px rgba(0,0,0,.04);margin-bottom:16px}
+.qa-card-title{font-size:16px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.qa-card-subtitle{font-size:11px;color:var(--text-sub);margin-bottom:16px}
+.qa-pill{padding:4px 12px;border-radius:14px;font-size:11px;font-weight:600;white-space:nowrap}
+.qa-pill.frustrated{background:#FEE2E2;color:#991B1B}
+.qa-pill.analyzed{background:#FEF3C7;color:#92400E}
+.qa-pill.detrator{background:#FEE2E2;color:#991B1B}
+.qa-pill.promotor{background:#D1FAE5;color:#065F46}
+.qa-pill.na{background:#F1F1F2;color:var(--text-sub)}
+.qa-grid-2{display:grid;grid-template-columns:1.6fr 1fr;gap:16px}
+.qa-grid-2-eq{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.qa-grid-split{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.qa-subcard{background:#FAFAFB;border-radius:8px;padding:14px 16px;border:1px solid #F0F0F2}
+.qa-subcard-title{font-size:13px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.qa-subcard-title .left{display:flex;align-items:center;gap:8px}
+.qa-subcard-title .icon{color:var(--lg-active-red)}
+.qa-subcard-sub{font-size:10px;color:var(--text-sub);margin-bottom:10px}
+.qa-subcard-body{font-size:13px;line-height:1.55}
+.qa-tag-chip{display:inline-block;background:#E0F2FE;color:#0C4A6E;padding:3px 10px;border-radius:10px;font-size:11px;margin-right:6px;margin-bottom:6px}
+.qa-survey-card{background:#fff;border-radius:8px;padding:14px 16px;margin-bottom:8px}
+.qa-survey-card .row{display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:5px 0;border-bottom:1px solid #F0F0F2}
+.qa-survey-card .row:last-child{border-bottom:none}
+.qa-survey-card .row .lbl{font-weight:500}
+.qa-survey-card .row .val{color:var(--text-sub);font-weight:600}
+.qa-survey-remark{padding:10px;background:#FAFAFB;border-radius:6px;margin-top:8px;font-size:11px;color:var(--text-sub)}
+.qa-category-list{list-style:none;padding:0;margin:0}
+.qa-category-list li{padding:8px 0;font-size:12px;border-bottom:1px solid #F4F5F7;display:flex;align-items:center;gap:8px}
+.qa-category-list li:last-child{border-bottom:none}
+.qa-cat-tag{display:inline-block;padding:2px 8px;background:#F4F5F7;color:var(--text-sub);border-radius:4px;font-size:10px;font-weight:600}
+.qa-interaction-btn{padding:8px 18px;background:#FFF5F5;color:var(--lg-active-red);border:1px solid #FECACA;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;float:right;margin-top:8px}
+.qa-interaction-btn:hover{background:var(--lg-active-red);color:#fff}
+.qa-bullet-list{list-style:none;padding:0;margin:0}
+.qa-bullet-list li{padding:8px 0 8px 18px;position:relative;font-size:13px;line-height:1.55}
+.qa-bullet-list li::before{content:'\2022';position:absolute;left:4px;top:6px;color:var(--lg-active-red);font-weight:700;font-size:14px}
+.qa-form-table{width:100%;border-collapse:collapse;font-size:12px;background:#fff;border-radius:10px;overflow:hidden}
+.qa-form-table thead th{background:#FFE5E5;color:var(--text-sub);padding:11px 14px;font-size:10px;font-weight:700;text-transform:uppercase;text-align:left;border-bottom:1px solid #FECACA}
+.qa-form-table tbody td{padding:13px 14px;border-bottom:1px solid #F4F5F7;vertical-align:top}
+.qa-form-table .col-item{width:140px}
+.qa-form-table .col-stt{width:22%}
+.qa-form-table .col-glms{width:130px;text-align:center}
+.qa-form-table .item-name{font-weight:700;font-size:13px;margin-bottom:3px}
+.qa-form-table .item-desc{font-size:10px;color:var(--text-sub);line-height:1.4}
+.qa-stt-bullet{padding-left:14px;position:relative;font-size:12px;line-height:1.5;margin-bottom:3px}
+.qa-stt-bullet::before{content:'\2022';position:absolute;left:0;top:0;color:var(--lg-active-red)}
+.qa-level-badges{display:flex;flex-direction:column;gap:3px;font-size:9px;font-weight:700}
+.qa-level-badge{padding:2px 8px;border-radius:8px;display:flex;align-items:center;justify-content:space-between;gap:8px;width:62px}
+.qa-level-badge.min{background:#FEE2E2;color:#991B1B}
+.qa-level-badge.med{background:#FEF3C7;color:#92400E}
+.qa-level-badge.max{background:#D1FAE5;color:#065F46}
+.qa-level-badge.active.max{background:#10B981;color:#fff}
+.qa-level-badge.active.med{background:#F59E0B;color:#fff}
+.qa-level-badge.active.min{background:#A50034;color:#fff}
+.qa-weight-circle{width:30px;height:30px;border-radius:50%;background:#F4F5F7;display:grid;place-items:center;font-weight:700;font-size:12px;margin:0 auto}
+.qa-weight-circle.warn{background:#FEE2E2;color:#991B1B}
+.qa-weight-circle.med{background:#FEF3C7;color:#92400E}
+.qa-weight-circle.zero{background:#F4F5F7;color:#1A1A1A}
+.qa-human-btns{display:flex;gap:4px;justify-content:center}
+.qa-thumb-btn{width:28px;height:28px;border:1px solid var(--border);background:#fff;border-radius:6px;cursor:pointer;font-size:13px;font-family:inherit}
+.qa-thumb-btn:hover{border-color:var(--lg-active-red)}
+.qa-form-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:14px}
+.qa-form-row.cols-2{grid-template-columns:1fr 1fr}
+.qa-form-field{display:flex;flex-direction:column;gap:5px}
+.qa-form-field label{font-size:11px;font-weight:600;color:var(--text-sub);text-transform:uppercase}
+.qa-form-field input,.qa-form-field textarea{padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:#fff;resize:vertical}
+.qa-form-field input:focus,.qa-form-field textarea:focus{outline:none;border-color:var(--lg-active-red)}
+.qa-rating-row{display:flex;gap:6px;flex-wrap:wrap}
+.qa-rating-btn{padding:7px 14px;border:1px solid var(--border);background:#fff;border-radius:18px;font-size:12px;cursor:pointer;font-family:inherit;color:var(--text-sub)}
+.qa-rating-btn:hover{border-color:var(--lg-active-red);color:var(--lg-active-red)}
+.qa-rating-btn.active{background:var(--lg-active-red);color:#fff;border-color:var(--lg-active-red)}
+.qa-save-btn{padding:9px 22px;background:var(--lg-active-red);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;float:right;margin-top:14px}
+.qa-save-btn:hover{background:var(--lg-heritage-red)}
+.qa-save-toast{position:fixed;bottom:24px;right:24px;background:#10B981;color:#fff;padding:12px 18px;border-radius:8px;font-size:13px;font-weight:600;opacity:0;transition:opacity .3s;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,.15);pointer-events:none}
+.qa-save-toast.show{opacity:1}
+.qa-survey-q{padding:18px 22px;background:#fff;border-radius:10px;margin-bottom:10px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+.qa-q-row{display:flex;align-items:flex-start;gap:14px}
+.qa-q-num{width:24px;height:24px;border-radius:50%;border:1px solid #FECACA;color:var(--text-sub);display:grid;place-items:center;font-size:11px;font-weight:700;flex-shrink:0}
+.qa-q-content{flex:1}
+.qa-q-text{font-size:13px;margin-bottom:10px;font-weight:500}
+.qa-q-options{display:flex;gap:8px;flex-wrap:wrap}
+.qa-q-option-btn{width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:#fff;cursor:pointer;font-size:12px;color:var(--text-sub);font-family:inherit}
+.qa-q-option-btn:hover{border-color:var(--lg-active-red);color:var(--lg-active-red)}
+.qa-q-checkbox{display:inline-flex;align-items:center;gap:6px;font-size:12px;margin-right:14px;cursor:pointer}
+.qa-q-checkbox input{accent-color:var(--lg-active-red);cursor:pointer}
+.qa-q-na{color:var(--text-sub);font-size:12px;padding:4px 0}
+.glms-link-btn{display:inline-flex;align-items:center;gap:4px;padding:5px 10px;background:#FFF0F0;color:var(--lg-heritage-red);border:1px solid #FECACA;border-radius:14px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap}
+.glms-link-btn:hover{background:var(--lg-active-red);color:#fff;border-color:var(--lg-active-red)}
+.glms-no-link{color:var(--text-sub);font-size:11px;font-style:italic}
+.glms-page-bg{background:#F4F5F7;min-height:100vh}
+.glms-hero{background:linear-gradient(120deg,#A50034 0%,#FD312E 60%,#FF6B6B 100%);color:#fff;padding:30px 40px;position:relative;overflow:hidden}
+.glms-hero::after{content:'';position:absolute;right:-40px;top:-40px;width:240px;height:240px;background:radial-gradient(circle,rgba(255,255,255,.15) 0%,transparent 70%);border-radius:50%}
+.glms-hero h2{font-size:26px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:14px}
+.glms-hero-badge{display:inline-block;padding:4px 14px;background:rgba(255,255,255,.2);backdrop-filter:blur(8px);border-radius:14px;font-size:12px;font-weight:600;margin-bottom:14px}
+.glms-hero p{font-size:14px;opacity:.95;max-width:600px;line-height:1.5}
+.glms-hero-icon{font-size:42px;background:rgba(255,255,255,.18);width:64px;height:64px;border-radius:50%;display:grid;place-items:center}
+.glms-stats{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:14px;padding:20px 40px;background:#fff;border-bottom:1px solid var(--border)}
+.glms-stat{display:flex;align-items:center;gap:14px;padding:14px 18px;background:#FAFAFB;border-radius:10px;border-left:4px solid var(--lg-active-red)}
+.glms-stat.done{border-left-color:#10B981}
+.glms-stat.prog{border-left-color:#F59E0B}
+.glms-stat.todo{border-left-color:#9CA3AF}
+.glms-stat .ico{width:42px;height:42px;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:20px;flex-shrink:0;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.glms-stat .info{flex:1;min-width:0}
+.glms-stat .info .lbl{font-size:11px;color:var(--text-sub);text-transform:uppercase;font-weight:600;letter-spacing:.4px}
+.glms-stat .info .val{font-size:22px;font-weight:700;color:var(--text);margin-top:2px}
+.glms-stat .info .sub{font-size:11px;color:var(--text-sub);margin-top:1px}
+.glms-overall-ring{position:relative;width:64px;height:64px;flex-shrink:0}
+.glms-overall-ring svg{transform:rotate(-90deg)}
+.glms-overall-ring .pct{position:absolute;inset:0;display:grid;place-items:center;font-size:14px;font-weight:800;color:var(--lg-heritage-red)}
+.glms-toolbar{background:#fff;padding:18px 40px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.glms-search{flex:1;min-width:260px;max-width:480px;position:relative}
+.glms-search input{width:100%;padding:10px 14px 10px 38px;border:1px solid var(--border);border-radius:24px;font-size:13px;font-family:inherit}
+.glms-search input:focus{outline:none;border-color:var(--lg-active-red)}
+.glms-search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text-sub)}
+.glms-cat-chips{display:flex;gap:6px;flex-wrap:wrap}
+.glms-cat-chip{padding:7px 14px;background:#fff;border:1px solid var(--border);border-radius:16px;font-size:12px;color:var(--text-sub);cursor:pointer;font-family:inherit;font-weight:500}
+.glms-cat-chip:hover{border-color:var(--lg-active-red);color:var(--lg-active-red)}
+.glms-cat-chip.active{background:var(--lg-active-red);color:#fff;border-color:var(--lg-active-red)}
+.glms-content{padding:24px 40px 60px}
+.glms-section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;margin-top:8px}
+.glms-section-title{font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px}
+.glms-section-meta{font-size:12px;color:var(--text-sub)}
+.glms-info-banner{background:#FFF0F0;border:1px solid #FECACA;border-left:4px solid var(--lg-active-red);border-radius:8px;padding:12px 18px;margin-bottom:20px;display:flex;align-items:center;gap:12px;font-size:13px;color:var(--lg-heritage-red)}
+.glms-info-banner .icon{font-size:20px}
+.glms-info-banner strong{color:var(--text)}
+.glms-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+.glms-card{background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.06);cursor:pointer;transition:transform .15s,box-shadow .15s;display:flex;flex-direction:column;position:relative}
+.glms-card:hover{transform:translateY(-3px);box-shadow:0 6px 16px rgba(0,0,0,.1)}
+.glms-card-thumb{height:130px;background:linear-gradient(135deg,#FD312E,#A50034);display:grid;place-items:center;color:#fff;font-size:34px;position:relative;overflow:hidden}
+.glms-card-thumb.c1{background:linear-gradient(135deg,#3B82F6,#1E40AF)}
+.glms-card-thumb.c2{background:linear-gradient(135deg,#10B981,#065F46)}
+.glms-card-thumb.c3{background:linear-gradient(135deg,#F59E0B,#92400E)}
+.glms-card-thumb.c4{background:linear-gradient(135deg,#8B5CF6,#5B21B6)}
+.glms-card-thumb.c5{background:linear-gradient(135deg,#EC4899,#9D174D)}
+.glms-card-thumb.c6{background:linear-gradient(135deg,#FD312E,#A50034)}
+.glms-card-thumb .badge{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.4);backdrop-filter:blur(4px);padding:3px 9px;border-radius:10px;font-size:10px;font-weight:600;color:#fff}
+.glms-card-thumb .duration{position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.55);padding:3px 8px;border-radius:4px;font-size:10px;color:#fff;font-weight:500}
+.glms-card-thumb .status-badge{position:absolute;top:8px;right:8px;padding:3px 9px;border-radius:10px;font-size:10px;font-weight:700;color:#fff}
+.glms-card-thumb .status-badge.completed{background:#10B981}
+.glms-card-thumb .status-badge.inprogress{background:#F59E0B}
+.glms-card-progress{position:absolute;bottom:0;left:0;right:0;height:5px;background:rgba(0,0,0,.25)}
+.glms-card-progress-fill{height:100%;background:#10B981;transition:width .3s}
+.glms-card-body{padding:14px;flex:1;display:flex;flex-direction:column}
+.glms-card-cat{font-size:10px;font-weight:700;color:var(--lg-active-red);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.glms-card-title{font-size:13px;font-weight:600;line-height:1.4;margin-bottom:8px;color:var(--text);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.glms-card-mapping{font-size:10px;color:var(--text-sub);margin-bottom:6px;display:flex;align-items:center;gap:4px}
+.glms-card-mapping strong{color:var(--lg-heritage-red);font-weight:700}
+.glms-card-meta{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--text-sub);margin-top:auto;padding-top:8px;border-top:1px solid #F0F0F2}
+.glms-card-stars{color:#F59E0B;font-size:11px}
+.glms-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9000;display:none;align-items:center;justify-content:center;padding:30px;backdrop-filter:blur(4px)}
+.glms-modal-overlay.open{display:flex}
+.glms-modal{background:#fff;border-radius:14px;width:100%;max-width:1100px;max-height:92vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.glms-modal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 22px;background:linear-gradient(90deg,#A50034,#FD312E);color:#fff}
+.glms-modal-header .left{display:flex;align-items:center;gap:14px}
+.glms-modal-header h3{font-size:16px;font-weight:700;margin:0}
+.glms-modal-header .cat-tag{padding:3px 10px;background:rgba(255,255,255,.22);border-radius:10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.glms-modal-close{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.2);border:none;color:#fff;cursor:pointer;font-size:18px;font-family:inherit;display:grid;place-items:center}
+.glms-modal-close:hover{background:rgba(255,255,255,.35)}
+.glms-modal-body{flex:1;display:grid;grid-template-columns:1.4fr 1fr;overflow:hidden;min-height:0}
+.glms-modal-left{background:#000;display:flex;flex-direction:column;overflow:hidden}
+.glms-video{flex:1;position:relative;background:radial-gradient(ellipse at center,#222 0%,#000 100%);display:grid;place-items:center;min-height:300px;overflow:hidden}
+.glms-play-btn{width:84px;height:84px;border-radius:50%;background:rgba(253,49,46,.9);border:none;cursor:pointer;display:grid;place-items:center;font-size:32px;color:#fff;font-family:inherit;box-shadow:0 4px 24px rgba(253,49,46,.5);position:relative;z-index:1;transition:transform .15s}
+.glms-play-btn:hover{transform:scale(1.08);background:#FD312E}
+.glms-play-btn.playing{background:rgba(0,0,0,.5)}
+.glms-video-title{position:absolute;top:14px;left:14px;color:#fff;font-size:13px;font-weight:600;background:rgba(0,0,0,.5);padding:6px 12px;border-radius:6px;z-index:1}
+.glms-video-controls{background:#1a1a1a;padding:10px 16px;display:flex;align-items:center;gap:12px;color:#ccc;font-size:12px}
+.glms-video-ctrl-btn{background:none;border:none;color:#fff;cursor:pointer;font-size:16px;font-family:inherit;padding:4px 8px;border-radius:4px}
+.glms-video-ctrl-btn:hover{background:rgba(255,255,255,.1)}
+.glms-video-time{font-family:'Roboto Mono',monospace;font-size:11px;color:#ccc;min-width:90px;text-align:center}
+.glms-video-progress{flex:1;height:6px;background:#333;border-radius:3px;cursor:pointer;position:relative;overflow:hidden}
+.glms-video-progress-fill{height:100%;background:linear-gradient(90deg,#FD312E,#FF6B6B);border-radius:3px;width:0%;transition:width .3s}
+.glms-modal-right{padding:20px 24px;overflow-y:auto;background:#fff;display:flex;flex-direction:column;gap:16px}
+.glms-modal-section{padding-bottom:14px;border-bottom:1px solid #F0F0F2}
+.glms-modal-section:last-child{border-bottom:none;padding-bottom:0}
+.glms-modal-section h4{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-sub);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.glms-modal-desc{font-size:13px;line-height:1.6;color:var(--text)}
+.glms-modal-list{list-style:none;padding:0;margin:0}
+.glms-modal-list li{font-size:12px;padding:5px 0 5px 18px;position:relative;line-height:1.5}
+.glms-modal-list li::before{content:'\2713';position:absolute;left:0;top:5px;color:#10B981;font-weight:700}
+.glms-instructor{display:flex;align-items:center;gap:10px}
+.glms-instructor .avt{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#8B5CF6,#5B21B6);color:#fff;display:grid;place-items:center;font-weight:700;font-size:14px}
+.glms-instructor .info{flex:1}
+.glms-instructor .info .nm{font-size:13px;font-weight:700}
+.glms-instructor .info .ttl{font-size:11px;color:var(--text-sub)}
+.glms-reverse-chips{display:flex;flex-wrap:wrap;gap:6px}
+.glms-reverse-chip{padding:5px 11px;background:#FFF0F0;color:var(--lg-heritage-red);border:1px solid #FECACA;border-radius:12px;font-size:11px;font-weight:600;display:inline-flex;align-items:center;gap:5px}
+.glms-reverse-chip .ico{font-size:11px}
+.glms-modal-progress{background:#FAFAFB;border-radius:8px;padding:12px 14px}
+.glms-modal-progress-bar{height:8px;background:#E5E7EB;border-radius:4px;overflow:hidden;margin-top:8px}
+.glms-modal-progress-fill{height:100%;background:linear-gradient(90deg,#10B981,#34D399);border-radius:4px;transition:width .3s}
+.glms-modal-progress-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--text-sub);margin-top:6px}
+.glms-modal-progress-meta strong{color:var(--text);font-weight:700}
+.glms-modal-footer{padding:14px 22px;background:#FAFAFB;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:10px}
+.glms-modal-status{font-size:12px;color:var(--text-sub);display:flex;align-items:center;gap:6px}
+.glms-modal-actions{display:flex;gap:8px}
+.glms-btn{padding:8px 16px;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px}
+.glms-btn.primary{background:#10B981;color:#fff}
+.glms-btn.primary:hover{background:#059669}
+.glms-btn.primary.done{background:#10B981;cursor:default}
+.glms-btn.secondary{background:#fff;color:var(--text-sub);border:1px solid var(--border)}
+.glms-btn.secondary:hover{border-color:var(--lg-active-red);color:var(--lg-active-red)}
+.qa-audio-btn{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#FD312E,#A50034);color:#fff;border:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 2px 6px rgba(253,49,46,.3);transition:transform .15s,box-shadow .15s;font-family:inherit}
+.qa-audio-btn:hover{transform:scale(1.12);box-shadow:0 4px 12px rgba(253,49,46,.5)}
+.qa-audio-btn.playing{background:linear-gradient(135deg,#10B981,#059669);animation:audioPulse 1.2s infinite}
+@keyframes audioPulse{0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,.6)}50%{box-shadow:0 0 0 10px rgba(16,185,129,0)}}
+.qa-critical-cell{text-align:center;padding:13px 8px}
+.qa-critical-badge{display:inline-flex;align-items:center;gap:4px;padding:5px 11px;border-radius:12px;font-size:11px;font-weight:700;white-space:nowrap}
+.qa-critical-badge.error{background:#FEE2E2;color:#991B1B;border:1px solid #FCA5A5}
+.qa-critical-badge.ok{background:#F1F1F2;color:#6B7280;border:1px solid #E5E7EB;font-weight:600}
+.raw-critical-cell{text-align:center;font-size:11px;padding:11px 14px}
+.raw-critical-cell .raw-crit-badge{display:inline-block;padding:3px 10px;border-radius:10px;font-size:10px;font-weight:700;letter-spacing:.3px;white-space:nowrap}
+.raw-critical-cell .raw-crit-badge.error{background:#FEE2E2;color:#991B1B;border:1px solid #FCA5A5}
+.raw-critical-cell .raw-crit-dash{color:#9CA3AF;font-weight:500;font-size:14px}
+.raw-critical-cell.has-error{cursor:help}
+.raw-critical-cell.has-error:hover{background:#FFF5F5}
+@media (max-width:900px){.glms-modal-body{grid-template-columns:1fr;overflow-y:auto}.glms-stats{grid-template-columns:1fr 1fr}}
+@media (max-width:1400px){.kpi-grid{grid-template-columns:repeat(3,1fr)}.chart-grid.col-trend{grid-template-columns:1fr}}
+@media (max-width:1100px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.chart-grid.col-2{grid-template-columns:1fr}}
+
+/* === v17 final: 5-Category Group Headers === */
+.qa-group-header td{padding:11px 18px;font-weight:800;font-size:11px;text-transform:uppercase;letter-spacing:1.6px;border-top:3px solid;border-bottom:1px solid}
+.qa-group-header.reliability td{background:linear-gradient(90deg,#FEF3C7 0%,#FFFBEB 100%);color:#92400E;border-top-color:#F59E0B;border-bottom-color:#FCD34D}
+.qa-group-header.friendliness td{background:linear-gradient(90deg,#D1FAE5 0%,#ECFDF5 100%);color:#065F46;border-top-color:#287D00;border-bottom-color:#6EE7B7}
+.qa-group-header.proactiveness td{background:linear-gradient(90deg,#DBEAFE 0%,#EFF6FF 100%);color:#1E40AF;border-top-color:#076369;border-bottom-color:#93C5FD}
+.qa-group-header.counseling td{background:linear-gradient(90deg,#F3E8FF 0%,#FAF5FF 100%);color:#6B21A8;border-top-color:#7C3AED;border-bottom-color:#C4B5FD}
+.qa-group-header.physical td{background:linear-gradient(90deg,#FCE7F3 0%,#FDF2F8 100%);color:#9D174D;border-top-color:#EC4899;border-bottom-color:#F9A8D4}
+
+/* === v17 final: Evaluator Badge (text only) === */
+.qa-eval-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:12px;font-size:10px;font-weight:700;letter-spacing:.3px;white-space:nowrap}
+.qa-eval-badge.ai{background:#FFE5E5;color:#A50034;border:1px solid #FCA5A5}
+.qa-eval-badge.human{background:#DBEAFE;color:#1E40AF;border:1px solid #93C5FD}
+
+/* === v17 final: Weight Circle Color (no warn red border) === */
+.qa-weight-circle.max{background:#D1FAE5;color:#065F46}
+.qa-weight-circle.min{background:#FEE2E2;color:#991B1B}
+.qa-weight-circle.warn{background:#FEE2E2;color:#991B1B}
+
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark"><img src="data:image/png;base64,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" alt="LG Electronics"/></div>
+    <div class="logo-text">
+      <h1>Global QA Evaluation Dashboard</h1>
+      <p>LG Electronics &middot; Contact Center Quality Improvement &middot; 47 Subsidiaries Worldwide &middot; v17</p>
+    </div>
+  </div>
+  <div class="header-right">
+    
+    <span>&#128197; <strong>Jun 2026</strong></span>
+    <div class="user-badge">
+      <div class="user-avatar">JJ</div>
+      <span>Jonghwan Jang &middot; CC Quality</span>
+    </div>
+  </div>
+</header>
+
+<div class="breadcrumb" id="breadcrumb">
+  <span>&#127968;</span>
+  <a onclick="goPage('main')">Global Overview</a>
+</div>
+
+<section id="page-main" class="page active">
+  <div class="filter-bar">
+    <div class="filter-row">
+      <div class="filter-group"><label>Year</label><select id="f-year"><option>2026</option><option>2025</option><option>2024</option></select></div>
+      <div class="filter-group"><label>Month</label><select id="f-month"><option>Jan</option><option>Feb</option><option>Mar</option><option>Apr</option><option>May</option><option selected>Jun</option></select></div>
+      <div class="filter-group" style="position:relative">
+        <label>Date Range</label>
+        <div class="date-icon-wrap" id="date-icon-wrap">
+          <button type="button" class="date-icon-btn" id="date-icon-btn" onclick="toggleDatePopup(event)" title="Select date range">
+            <span style="font-size:16px">&#128197;</span><span class="date-dot" id="date-dot" style="display:none"></span>
+          </button>
+          <div class="date-popup" id="date-popup">
+            <div class="date-popup-title">&#128197; Select Date Range</div>
+            <div class="date-popup-presets">
+              <button type="button" class="preset-btn" onclick="setDatePreset('today', this)">Today</button>
+              <button type="button" class="preset-btn" onclick="setDatePreset('week', this)">This Week</button>
+              <button type="button" class="preset-btn" onclick="setDatePreset('month', this)">This Month</button>
+              <button type="button" class="preset-btn" onclick="setDatePreset('30d', this)">Last 30 Days</button>
+              <button type="button" class="preset-btn" onclick="setDatePreset('90d', this)">Last 90 Days</button>
+              <button type="button" class="preset-btn" onclick="setDatePreset('ytd', this)">YTD</button>
+            </div>
+            <div class="date-popup-row">
+              <div class="date-popup-field"><label>From</label><input type="date" id="f-date-from" value="2026-06-01"></div>
+              <div class="date-popup-field"><label>To</label><input type="date" id="f-date-to" value="2026-06-30"></div>
+            </div>
+            <div class="date-popup-actions">
+              <button type="button" class="btn-cancel" onclick="cancelDatePopup()">Cancel</button>
+              <button type="button" class="btn-apply-small" onclick="applyDatePopup()">Apply</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="filter-group"><label>Region</label>
+        <select id="f-region" onchange="onRegionChange()">
+          <option value="all">All Regions</option><option value="English">English</option><option value="EUROPE">EUROPE</option>
+          <option value="LATAM">LATAM</option><option value="MEA">MEA</option><option value="CIS">CIS</option>
+          <option value="ASIA">ASIA</option><option value="India">India</option>
+        </select>
+      </div>
+      <div class="filter-group"><label>Subsidiary</label>
+        <div class="multi-select" id="ms-wrap">
+          <div class="multi-select-toggle" onclick="toggleSubsidiaryMenu(event)"><span id="ms-label">All Subsidiaries</span><span class="arrow">&#9660;</span></div>
+          <div class="multi-select-menu" id="ms-menu"></div>
+        </div>
+      </div>
+      <button class="btn-reset" onclick="resetFilters()">Reset</button>
+      <button class="btn-apply" onclick="refreshMain()">Apply Filters</button>
+    </div>
+    <div class="filter-row divider">
+      <div class="filter-group"><label>Channel</label>
+        <div class="channel-group">
+          <button class="channel-btn active" data-ch="all" onclick="toggleChannel('all')">&#128279; All</button>
+          <button class="channel-btn" data-ch="voice" onclick="toggleChannel('voice')">&#127908; Voice</button>
+          <button class="channel-btn" data-ch="chat" onclick="toggleChannel('chat')">&#128172; Chat</button>
+          <button class="channel-btn" data-ch="email" onclick="toggleChannel('email')">&#128231; E-mail</button>
+          <button class="channel-btn" data-ch="chatbot" onclick="toggleChannel('chatbot')">&#129302; Chatbot</button>
+        </div>
+      </div>
+      <div class="filter-group"><label>Score</label>
+        <div class="icon-select" id="score-wrap">
+          <div class="icon-select-toggle" onclick="toggleIconMenu('score', event)"><span id="score-label">&#11088; All Scores</span><span style="color:var(--text-sub)">&#9660;</span></div>
+          <div class="icon-select-menu" id="score-menu">
+            <div class="icon-option selected" data-val="all" onclick="selectScore('all','&#11088; All Scores')">&#11088; <span>All Scores</span><span class="check">&#10003;</span></div>
+            <div class="icon-option" data-val="90" onclick="selectScore('90','&#129351; 90+')">&#129351; <span>90+ (Excellent)</span><span class="check">&#10003;</span></div>
+            <div class="icon-option" data-val="80" onclick="selectScore('80','&#129352; 80+')">&#129352; <span>80+ (Very Good)</span><span class="check">&#10003;</span></div>
+            <div class="icon-option" data-val="70" onclick="selectScore('70','&#129353; 70+')">&#129353; <span>70+ (Good)</span><span class="check">&#10003;</span></div>
+            <div class="icon-option" data-val="60" onclick="selectScore('60','&#128202; 60+')">&#128202; <span>60+ (Average)</span><span class="check">&#10003;</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="filter-group"><label>NPS</label>
+        <div class="icon-select" id="nps-wrap">
+          <div class="icon-select-toggle" onclick="toggleIconMenu('nps', event)"><span id="nps-label"><span class="dot" style="background:#9CA3AF"></span> All NPS</span><span style="color:var(--text-sub)">&#9660;</span></div>
+          <div class="icon-select-menu" id="nps-menu">
+            <div class="icon-option selected" data-val="all" onclick="selectNps('all','<span class=&quot;dot&quot; style=&quot;background:#9CA3AF&quot;></span> All NPS')"><span class="dot" style="background:#9CA3AF"></span><span>All NPS</span><span class="check">&#10003;</span></div>
+            <div class="icon-option" data-val="promoter" onclick="selectNps('promoter','<span class=&quot;dot&quot; style=&quot;background:#10B981&quot;></span> Promoter')"><span class="dot" style="background:#10B981"></span><span>Promoter</span><span class="check">&#10003;</span></div>
+            <div class="icon-option" data-val="passive" onclick="selectNps('passive','<span class=&quot;dot&quot; style=&quot;background:#F59E0B&quot;></span> Passive')"><span class="dot" style="background:#F59E0B"></span><span>Passive</span><span class="check">&#10003;</span></div>
+            <div class="icon-option" data-val="detractor" onclick="selectNps('detractor','<span class=&quot;dot&quot; style=&quot;background:#EF4444&quot;></span> Detractor')"><span class="dot" style="background:#EF4444"></span><span>Detractor</span><span class="check">&#10003;</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="active-filters" id="active-filters" style="margin-left:auto"></div>
+    </div>
+  </div>
+
+  <main>
+    <div class="kpi-section-title">&#128161; Key Performance Indicators (KPI)</div>
+    <div class="kpi-grid">
+      <div class="kpi-card-v2 blue"><div class="kpi-label">&#127942; Average QA Score</div><div class="kpi-val"><span class="num" id="kpi-avg">86.4</span><span class="unit">%</span></div><div class="kpi-sub"><span class="kpi-delta up" id="kpi-avg-d">&#9650; 1.2pt vs last month</span></div></div>
+      <div class="kpi-card-v2 purple"><div class="kpi-label">&#128202; AI Analysis Rate</div><div class="kpi-val"><span class="num" id="kpi-rate">18.2</span><span class="unit">%</span></div><div class="kpi-sub"><strong id="kpi-analyzed">2,343</strong> / <strong id="kpi-total">12,847</strong> cases</div><div class="kpi-sub-2">(analyzed / total)</div></div>
+      <div class="kpi-card-v2 green"><div class="kpi-label">&#127919; Coaching Required</div><div class="kpi-val"><span class="num" id="kpi-coach">12.4</span><span class="unit">%</span></div><div class="kpi-sub">(AI auto-classification)</div></div>
+      <div class="kpi-card-v2 red"><div class="kpi-label">&#9888; Critical Errors</div><div class="kpi-val"><span class="num" id="kpi-crit">5</span><span class="unit">cases</span></div><div class="kpi-sub">(immediate coaching required)</div></div>
+      <div class="kpi-card-v2 yellow"><div class="kpi-label">&#11088; Excellent (&ge;90)</div><div class="kpi-val"><span class="num" id="kpi-excellent">23</span><span class="unit">%</span></div><div class="kpi-sub"><span class="kpi-delta down">&#9660; 2% vs last month</span></div></div>
+    </div>
+
+    <div class="chart-grid col-2">
+      <div class="card">
+        <div class="card-title">Subsidiary Comparison <span style="font-size:11px;color:var(--text-sub);font-weight:400"><span style="display:inline-block;width:18px;border-top:2px dashed var(--lg-active-red);vertical-align:middle"></span> Target 85</span></div>
+        <div class="card-subtitle">Colored group separator bars between regions &middot; Ordered by country GDP rank &middot; Click bar for detail &rarr;</div>
+        <div class="chart-wrap tall"><canvas id="bulletChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Category Performance Heatmap</div>
+        <div class="card-subtitle">Color legend + region grouping &middot; Sticky headers &middot; Click any cell to view detail</div>
+        <div class="heatmap-legend" id="heatmap-legend"></div>
+        <div class="heatmap-wrap"><div class="heatmap" id="heatmap"></div></div>
+      </div>
+    </div>
+
+    <!-- v10 NEW: 6-Month Trend + Monthly Performance Data in 2-column layout (same box style as above) -->
+    <div class="chart-grid col-trend">
+      <div class="card">
+        <div class="card-title">6-Month Trend by Subsidiary <span style="font-size:11px;color:var(--text-sub);font-weight:400" id="trend-region-meta">Top 5 by Filter</span></div>
+        <div class="card-subtitle">Real performance trajectories with cross-overs &middot; Reflects current filter (Region / Subsidiary) &middot; Hover for monthly score</div>
+        <div class="chart-wrap trend"><canvas id="trendChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Monthly Performance Data</div>
+        <div class="card-subtitle">Monthly scores &middot; Cumulative average &middot; 6M trend indicator</div>
+        <div class="trend-table-wrap"><table class="trend-table" id="trendTable"></table></div>
+      </div>
+    </div>
+
+    <div class="chart-grid col-1">
+      <div class="raw-card">
+        <div class="raw-header">
+          <div class="raw-header-left">
+            <div class="raw-icon-circle">&#128172;</div>
+            <div><h3>Quality Analysis</h3><p>AI-powered conversation quality review</p></div>
+          </div>
+          <div class="raw-header-right">
+            <div class="toggle-group">
+              <button class="toggle-btn active" onclick="setRawChannel('voice', this)">&#127908; Voice</button>
+              <button class="toggle-btn" onclick="setRawChannel('chat', this)">&#128172; Chat</button>
+              <button class="toggle-btn" onclick="setRawChannel('email', this)">&#128231; E-mail</button>
+              <button class="toggle-btn" onclick="setRawChannel('chatbot', this)">&#129302; Chatbot</button>
+            </div>
+            <div class="chip-group">
+              <button class="chip-btn">&#128197; Today</button>
+              <button class="chip-btn">&#128197; Last 7 days</button>
+              <button class="chip-btn active">&#128197; Last 30 days</button>
+              <button class="chip-btn">&#128197; This month</button>
+            </div>
+            <button class="btn-download" onclick="downloadRawDataCSV()">&#11015; Download CSV</button>
+          </div>
+        </div>
+        <div class="raw-filter-row">
+          <div class="filter-group"><label>Date Range</label><input type="text" value="18/06/2026 - 25/06/2026"></div>
+          <div class="filter-group"><label>Subsidiary</label>
+            <select>
+              <option>&#127760; All Subsidiaries</option>
+              <option>LGEUS &middot; United States</option><option>LGEUK &middot; United Kingdom</option>
+              <option>LGEDG &middot; Germany</option><option>LGEFS &middot; France</option>
+            </select>
+          </div>
+          <div class="filter-group"><label>Agent</label>
+            <select>
+              <option>&#128100; All Agents</option>
+              <option>JongHwan Jang</option><option>ANA PEREIRA</option>
+            </select>
+          </div>
+          <div class="filter-group"><label>Queue</label><select><option>&#127911; All Queues</option><option>IB - [SUPORTE - HE]</option></select></div>
+          <div class="filter-group"><label>Score</label><select><option>&#127942; All</option><option>80+</option></select></div>
+          <div class="filter-group"><label>NPS</label><select><option>&#128200; All</option><option>Promoter</option></select></div>
+          <div class="filter-group"><label>Conv. ID</label><input type="text" placeholder="Enter ID..."></div>
+          <button class="btn-download">&#128269; Search</button>
+        </div>
+        <div class="raw-summary"><span><strong id="raw-count">20</strong> conversations found</span><span>Showing 1-20</span></div>
+        <div class="raw-table-wrap"><table class="raw-table" id="rawDataTable"></table></div>
+      </div>
+    </div>
+  </main>
+</section>
+
+<section id="page-detail" class="page">
+  <div class="filter-bar">
+    <div class="filter-row">
+      <div class="filter-group"><label>Subsidiary *</label><select id="d-sub" onchange="refreshDetail()"></select></div>
+      <div class="filter-group"><label>Center / Vendor</label><select id="d-center"><option>All Centers</option><option>Manila Center A</option></select></div>
+      <div class="filter-group"><label>Team / Agent</label><select id="d-team"><option>All Teams</option><option>Team Alpha</option></select></div>
+      <div class="filter-group"><label>Evaluator</label><select id="d-eval"><option>All Evaluators</option><option>AI (LangGraph)</option></select></div>
+      <div class="filter-group"><label>Period</label><select id="d-period"><option>Jun 2026</option><option>Q2 2026</option></select></div>
+      <button class="btn-apply" onclick="refreshDetail()">Apply</button>
+    </div>
+  </div>
+  <main>
+    <div class="chart-grid" style="grid-template-columns:1fr 1.5fr 1.2fr">
+      <div class="card gauge-card">
+        <div class="card-title" style="align-self:flex-start">Avg Score</div>
+        <div class="card-subtitle" style="align-self:flex-start" id="d-sub-name">LGEAI &middot; English</div>
+        <div class="gauge-wrap"><canvas id="gaugeChart"></canvas><div class="gauge-value"><div class="num" id="gauge-num">89.2</div><div class="lbl">/ 100</div></div></div>
+        <div style="margin-top:12px;font-size:12px;color:var(--text-sub)">Evaluated <strong id="d-eval-cnt">1,486</strong> calls &middot; Target 85</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Team Highlights</div>
+        <div class="card-subtitle">Best &amp; worst performing teams this period</div>
+        <div class="summary-row">
+          <div class="summary-box good"><div class="label">&#127942; Best Team</div><div class="name">Team Alpha</div><div class="score">Avg 92.4 &middot; 124 evaluations</div></div>
+          <div class="summary-box bad"><div class="label">&#9888; Coaching Needed</div><div class="name">Team Delta</div><div class="score">Avg 79.1 &middot; 98 evaluations</div></div>
+          <div class="summary-box good"><div class="label">&#128170; Strongest Item</div><div class="name">Greeting</div><div class="score">98.2% achievement</div></div>
+          <div class="summary-box bad"><div class="label">&#128201; Weakest Item</div><div class="name">Active Listening</div><div class="score">72.5% achievement</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Category Score (4 Pillars)</div>
+        <div class="card-subtitle">Reliability &middot; Friendliness &middot; Proactiveness &middot; Physical Env.</div>
+        <div class="chart-wrap short"><canvas id="radarChart"></canvas></div>
+      </div>
+    </div>
+    <div class="chart-grid col-2">
+      <div class="card"><div class="card-title">Weekly Score Trend</div><div class="card-subtitle">Score line + Evaluation volume bar</div><div class="chart-wrap med"><canvas id="comboChart"></canvas></div></div>
+      <div class="card"><div class="card-title">Achievement Rate by Sub-Category</div><div class="card-subtitle">22 items aggregated</div><div class="chart-wrap med"><canvas id="subcatChart"></canvas></div></div>
+    </div>
+    <div class="chart-grid col-1">
+      <div class="card"><div class="card-title">Hit-or-Miss Critical Items &middot; Fail Rate Tracking</div><div class="card-subtitle">8 critical items with 0-point fail risk</div><div class="chart-wrap med"><canvas id="hitmissChart"></canvas></div></div>
+    </div>
+    <div class="chart-grid col-2">
+      <div class="card"><div class="card-title">&#127942; Top Performers</div><div class="card-subtitle">Click any agent row to view their calls below &darr;</div><table id="topTable"></table></div>
+      <div class="card"><div class="card-title">&#9888; Bottom Performers</div><div class="card-subtitle">Click any agent row to view their calls below &darr;</div><table id="botTable"></table></div>
+    </div>
+    <div class="chart-grid col-1">
+      <div class="card"><div class="card-title">Top Deduction Reasons</div><div class="card-subtitle">Frequency across 22 items</div><div class="chart-wrap med"><canvas id="deductionChart"></canvas></div></div>
+    </div>
+    <div class="chart-grid col-1" id="agent-raw-wrap" style="display:none">
+      <div class="raw-card">
+        <div class="raw-header">
+          <div class="raw-header-left">
+            <div class="raw-icon-circle">&#128203;</div>
+            <div><h3 id="agent-raw-title">Agent Call History</h3><p>Filtered to selected agent &middot; Click any row to view QA detail &rarr;</p></div>
+          </div>
+          <div class="raw-header-right">
+            <button class="btn-download" onclick="downloadAgentRawCSV()">&#11015; Download CSV</button>
+            <button class="btn-download outline" onclick="closeAgentRawData()">&#10005; Close</button>
+          </div>
+        </div>
+        <div class="raw-summary"><span><strong id="agent-raw-count">0</strong> conversations &middot; Filtered by agent</span><span id="agent-raw-period">Period: Jun 2026</span></div>
+        <div class="raw-table-wrap"><table class="raw-table" id="agentRawTable"></table></div>
+      </div>
+    </div>
+  </main>
+</section>
+
+<section id="page-qa" class="page">
+  <div class="qa-page-bg">
+    <div class="qa-header">
+      <div class="qa-header-left">
+        <button class="qa-back-btn" onclick="goPage('main')" title="Back">&larr;</button>
+        <div class="qa-title">AI Quality Assessment</div>
+      </div>
+      <div class="qa-score-wrap">
+        <div class="qa-score-circle"><div class="qa-score-inner" id="qa-score-num">64<small>/100</small></div></div>
+        <div class="qa-score-label">Call QA Score</div>
+      </div>
+    </div>
+    <div class="qa-meta-bar">
+      <span class="meta-item"><span class="icon">&#128100;</span> Customer: <strong id="qa-customer">*********0002</strong></span>
+      <span class="sep">&middot;</span>
+      <span class="meta-item"><span class="icon">&#127911;</span> Agent: <strong id="qa-agent">JongHwan Jang</strong></span>
+      <span class="sep">&middot;</span>
+      <span class="meta-item"><span class="icon">&#128197;</span> <span id="qa-datetime">24/06/2026 17:36</span></span>
+      <span class="sep">&middot;</span>
+      <span class="meta-item"><span class="icon">&#128196;</span> Genesys ID: <strong id="qa-conv-id" style="font-family:'Roboto Mono',monospace;font-size:12px">274d38b0-f8f4-4797-986b-7789e0332bad</strong></span>
+      <span class="sep">&middot;</span>
+      <span class="meta-item"><span class="icon">&#127911;</span> <strong id="qa-queue">IB - [ SUPORTE - REFRIGERADOR ]</strong></span>
+    </div>
+    <div class="qa-tabs">
+      <button class="qa-tab active" data-tab="summary" onclick="qaTab('summary', this)">Summary</button>
+      <button class="qa-tab" data-tab="agent" onclick="qaTab('agent', this)">Agent Analysis</button>
+      <button class="qa-tab" data-tab="quality" onclick="qaTab('quality', this)">Quality Form Analysis</button>
+      <button class="qa-tab" data-tab="human" onclick="qaTab('human', this)">Objection</button>
+      <button class="qa-tab" data-tab="gsfs" onclick="qaTab('gsfs', this)">GSFS Survey Results</button>
+    </div>
+    <div class="qa-content">
+
+      <div class="qa-tab-panel active" id="qa-panel-summary">
+        <div class="qa-grid-2">
+          <div class="qa-card">
+            <div class="qa-card-title">Overview <div><span class="qa-pill frustrated">Frustrated</span> <span class="qa-pill analyzed">Analyzed</span></div></div>
+            <div class="qa-card-subtitle">Quick context for classification and follow-up</div>
+            <div class="qa-grid-2-eq">
+              <div class="qa-subcard">
+                <div class="qa-subcard-title"><span class="left">Call Reason</span></div>
+                <div class="qa-subcard-body">Request refrigerator exchange due to factory defect and brand authorization for store handling.</div>
+              </div>
+              <div class="qa-subcard">
+                <div class="qa-subcard-title"><span class="left">Call Summary</span></div>
+                <div class="qa-subcard-body">The customer reported that the refrigerator showed a defect right after purchase, and that technical assistance reported a parts shortage, requesting exchange of the product and LG authorization to enable the store exchange. The agent initially collected data and stated they would open a protocol for internal analysis. After consulting supervision, the agent advised the case would be handled directly with the store, then informed that a new protocol would be opened for analysis and possible exchange or return, providing the protocol number at the end.</div>
+              </div>
+            </div>
+          </div>
+          <div class="qa-card">
+            <div class="qa-card-title">GSFS Survey Results <span class="qa-pill na">N/A</span></div>
+            <div class="qa-survey-card">
+              <div class="row"><span class="lbl">NPS (Net Promoter Score)</span><span class="val">N/A</span></div>
+              <div class="row"><span class="lbl">Agent Score</span><span class="val">N/A</span></div>
+              <div class="row"><span class="lbl">Resolution</span><span class="val">N/A</span></div>
+            </div>
+            <div class="qa-survey-remark"><strong style="color:var(--text)">Survey Remark</strong><br>No remark available.</div>
+          </div>
+        </div>
+        <div class="qa-card">
+          <div class="qa-card-title">Global GSFS Contact Reason Category</div>
+          <ul class="qa-category-list">
+            <li><span class="qa-cat-tag">Service</span> CIC &rsaquo; Explanation(Carrying out customer requests) &rsaquo; Customer requests not carried out</li>
+            <li><span class="qa-cat-tag">Service</span> Policy &rsaquo; System/Policy &rsaquo; Parts discontinued during the retention period</li>
+            <li><span class="qa-cat-tag">Service</span> Policy &rsaquo; System/Policy &rsaquo; Dissatisfied with refund &amp; exchange standards</li>
+          </ul>
+        </div>
+        <div class="qa-card">
+          <div class="qa-card-title">Details</div>
+          <div class="qa-card-subtitle">Quick context for classification and follow-up</div>
+          <div class="qa-grid-split">
+            <div class="qa-subcard">
+              <div class="qa-subcard-title"><span class="left"><span class="icon">&#128100;</span> Customer Sentiment (Case Context)</span></div>
+              <div class="qa-subcard-sub">Why the customer sentiment was inferred related to case context</div>
+              <span class="qa-tag-chip">Defect &amp; bureaucracy</span>
+              <div class="qa-subcard-body" style="margin-top:8px">The customer demonstrates frustration with the refrigerator defect right after purchase and with the need to open multiple contacts and wait for analysis to receive a solution.</div>
+            </div>
+            <div class="qa-subcard">
+              <div class="qa-subcard-title"><span class="left"><span class="icon">&#11088;</span> Customer Reason for NPS</span><span class="qa-pill detrator">Detractor</span></div>
+              <div class="qa-subcard-sub">Why the possible NPS was inferred</div>
+              <div class="qa-subcard-body">There is dissatisfaction with the defective product and with the slow and bureaucratic process, with no immediate solution.</div>
+            </div>
+            <div class="qa-subcard">
+              <div class="qa-subcard-title"><span class="left"><span class="icon">&#127911;</span> Customer Sentiment (Agent)</span></div>
+              <div class="qa-subcard-sub">Why the customer sentiment was inferred related to agent</div>
+              <span class="qa-tag-chip">Cordial and clear service</span>
+              <div class="qa-subcard-body" style="margin-top:8px">The customer is treated respectfully and is able to route the case, accepting the guidance and thanking at the end.</div>
+            </div>
+            <div class="qa-subcard">
+              <div class="qa-subcard-title"><span class="left"><span class="icon">&#11088;</span> Agent Reason for NPS</span><span class="qa-pill promotor">Promoter</span></div>
+              <div class="qa-subcard-sub">Why the agent NPS was inferred</div>
+              <div class="qa-subcard-body">The agent was cordial, confirmed data, consulted supervision, and conducted the routing through to the final protocol.</div>
+            </div>
+          </div>
+          <button class="qa-interaction-btn">View Interaction &rarr;</button>
+          <div style="clear:both"></div>
+        </div>
+      </div>
+
+      <div class="qa-tab-panel" id="qa-panel-agent">
+        <div class="qa-card">
+          <div class="qa-card-title">Details</div>
+          <div class="qa-card-subtitle">Quick context for classification and follow-up</div>
+          <div class="qa-subcard">
+            <div class="qa-subcard-title"><span class="left">Agent Action</span></div>
+            <div class="qa-subcard-body">The agent started correctly by confirming contact data and identifying product information before advancing. However, the framing of the issue was conducted inconsistently. The product was purchased on 06/15/2026 and on 06/24/2026 was still within the 5-year window defined by the procedure for case analysis, but the agent did not present this orientation nor inform the correct email flow and response timeframe of up to 5 business days.</div>
+          </div>
+          <div class="qa-grid-split" style="margin-top:14px">
+            <div class="qa-subcard">
+              <div class="qa-subcard-title"><span class="left"><span class="icon">&#128170;</span> Agent Strengths</span></div>
+              <div class="qa-subcard-sub">Keep doing</div>
+              <ul class="qa-bullet-list">
+                <li>Confirmed registration and product data before registering the demand</li>
+                <li>Consulted supervision when realizing the case required validation</li>
+                <li>Provided the protocol number at the end, allowing subsequent monitoring</li>
+              </ul>
+            </div>
+            <div class="qa-subcard">
+              <div class="qa-subcard-title"><span class="left"><span class="icon">&#9881;</span> Agent Improvement Points</span></div>
+              <div class="qa-subcard-sub">Coaching opportunities</div>
+              <ul class="qa-bullet-list">
+                <li>Should have applied the parts-unavailable procedure</li>
+                <li>Should have correctly validated the purchase date</li>
+                <li>Should have informed the customer of the 5 business day SLA</li>
+                <li>Should have clarified the correct flow for store authorization</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="qa-card">
+          <div class="qa-card-title">CIC Boletim Index Reference</div>
+          <div class="qa-card-subtitle">Identified in this interaction</div>
+          <ul class="qa-bullet-list">
+            <li>4.6 Incorrect Product Returned by LG Technical Assistance</li>
+            <li>4.2 Missing Accessory or Damaged Appliance after Repair</li>
+            <li>SAC004 LGC SERVICE CENTER PROCEDURE</li>
+            <li>SAC005 TECHNICAL VISIT COMPLAINT</li>
+            <li>SAC000_02 INTRODUCTION TO SERVICE, WARRANTY AND REPAIR</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="qa-tab-panel" id="qa-panel-quality">
+        <div class="qa-card" style="padding:0;overflow:hidden">
+          <table class="qa-form-table" id="qaFormTable"></table>
+        </div>
+      </div>
+
+      <div class="qa-tab-panel" id="qa-panel-human">
+      <div class="qa-card">
+        <div class="qa-card-title">Consultant Objection <span class="qa-pill na" id="qa-objection-status">Pending</span></div>
+        <div class="qa-card-subtitle">Area for consultants to file an objection against the AI evaluation result</div>
+        <div class="qa-form-row">
+          <div class="qa-form-field"><label>Consultant Name</label><input type="text" id="qa-consultant" value="JongHwan Jang"></div>
+          <div class="qa-form-field"><label>Submission Date</label><input type="date" id="qa-obj-date" value="2026-06-25"></div>
+          <div class="qa-form-field"><label>Objection Item</label>
+            <select id="qa-obj-item">
+              <option>Greeting / Presentation</option>
+              <option>Customer Identification</option>
+              <option>Product Identification</option>
+              <option>Reason Identification</option>
+              <option>Empathy</option>
+              <option>Personalized Treatment</option>
+              <option>Clarity and Correctness</option>
+              <option>Pause Management</option>
+              <option>Objectivity and Handling</option>
+              <option>Critical Procedure</option>
+            </select>
+          </div>
+        </div>
+        <div class="qa-form-row cols-2">
+          <div class="qa-form-field"><label>Objection Reason</label><textarea id="qa-obj-reason" rows="5" placeholder="Please describe the reason for your objection in detail..."></textarea></div>
+          <div class="qa-form-field"><label>Supporting Evidence</label><textarea id="qa-obj-evidence" rows="5" placeholder="Reference STT segments, guideline documents, or other supporting materials..."></textarea></div>
+        </div>
+      </div>
+      <div class="qa-card" style="border-left:4px solid var(--lg-active-red)">
+        <div class="qa-card-title">Supervisor Review Feedback <span class="qa-pill analyzed" id="qa-review-status">Pending Review</span></div>
+        <div class="qa-card-subtitle">Supervisor reviews the consultant's objection and provides feedback</div>
+        <div class="qa-form-row">
+          <div class="qa-form-field"><label>Supervisor</label><input type="text" id="qa-supervisor" value="Soonyoo Kwon"></div>
+          <div class="qa-form-field"><label>Review Date</label><input type="date" id="qa-review-date" value="2026-06-26"></div>
+          <div class="qa-form-field"><label>Review Result</label>
+            <select id="qa-review-result">
+              <option>Accept</option>
+              <option>Partial Accept</option>
+              <option>Reject</option>
+              <option>Need More Review</option>
+            </select>
+          </div>
+        </div>
+        <div class="qa-form-row cols-2">
+          <div class="qa-form-field"><label>Review Comment</label><textarea id="qa-review-comment" rows="5" placeholder="Please provide your review comments on the consultant's objection..."></textarea></div>
+          <div class="qa-form-field"><label>Score Adjustment / Coaching Guide</label><textarea id="qa-review-adjust" rows="5" placeholder="Enter score adjustments or coaching guidance..."></textarea></div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:14px">
+          <button class="qa-save-btn" style="background:#fff;color:var(--lg-active-red);border:1px solid var(--lg-active-red);float:none;margin-top:0" onclick="qaSaveObjection()">💾 Save</button>
+          <button class="qa-save-btn" style="float:none;margin-top:0" onclick="qaCompleteObjection()">✅ Completed</button>
+        </div>
+        <div style="clear:both"></div>
+      </div>
+    </div>
+
+      <div class="qa-tab-panel" id="qa-panel-gsfs">
+        <div id="qa-gsfs-questions"></div>
+        <button class="qa-save-btn" onclick="qaSaveGSFS()">Save</button>
+        <div style="clear:both"></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section id="page-glms" class="page">
+  <div class="glms-page-bg">
+    <div class="glms-hero">
+      <div style="display:flex;align-items:center;gap:18px;position:relative;z-index:1">
+        <div class="glms-hero-icon">&#127891;</div>
+        <div>
+          <div class="glms-hero-badge">GLMS &middot; Global Learning Management System</div>
+          <h2>Welcome to LG GLMS</h2>
+          <p>Continue learning, complete assigned training, and develop the skills you need to deliver outstanding customer experiences across all 47 LG subsidiaries.</p>
+        </div>
+      </div>
+    </div>
+    <div class="glms-stats" id="glms-stats"></div>
+    <div class="glms-toolbar">
+      <button class="qa-back-btn" onclick="goBackToQA()" title="Back to QA Detail" style="margin-right:4px">&larr;</button>
+      <div class="glms-search">
+        <span class="glms-search-icon">&#128269;</span>
+        <input type="text" id="glms-search-input" placeholder="Search courses, topics, skills..." oninput="filterGLMS()">
+      </div>
+      <div class="glms-cat-chips" id="glms-cat-chips">
+        <button class="glms-cat-chip active" data-cat="all" onclick="setGLMSCat('all', this)">All Categories</button>
+        <button class="glms-cat-chip" data-cat="Communication" onclick="setGLMSCat('Communication', this)">Communication</button>
+        <button class="glms-cat-chip" data-cat="Compliance" onclick="setGLMSCat('Compliance', this)">Compliance</button>
+        <button class="glms-cat-chip" data-cat="Product" onclick="setGLMSCat('Product', this)">Product</button>
+        <button class="glms-cat-chip" data-cat="Discovery" onclick="setGLMSCat('Discovery', this)">Discovery</button>
+        <button class="glms-cat-chip" data-cat="Soft Skills" onclick="setGLMSCat('Soft Skills', this)">Soft Skills</button>
+        <button class="glms-cat-chip" data-cat="Language" onclick="setGLMSCat('Language', this)">Language</button>
+        <button class="glms-cat-chip" data-cat="Procedure" onclick="setGLMSCat('Procedure', this)">Procedure</button>
+      </div>
+    </div>
+    <div class="glms-content">
+      <div class="glms-info-banner" id="glms-context-banner" style="display:none">
+        <span class="icon">&#127919;</span>
+        <div>Recommended training for evaluation item: <strong id="glms-context-item">&mdash;</strong></div>
+      </div>
+      <div id="glms-continue-section" style="display:none;margin-bottom:24px">
+        <div class="glms-section-head">
+          <div class="glms-section-title">&#128293; <span>Continue Learning</span></div>
+          <div class="glms-section-meta"><strong id="glms-continue-count">0</strong> in progress</div>
+        </div>
+        <div class="glms-grid" id="glms-continue-grid"></div>
+      </div>
+      <div class="glms-section-head">
+        <div class="glms-section-title">&#128218; <span id="glms-section-label">All Courses</span></div>
+        <div class="glms-section-meta"><strong id="glms-count">8</strong> courses available</div>
+      </div>
+      <div class="glms-grid" id="glms-grid"></div>
+    </div>
+  </div>
+</section>
+
+<div class="glms-modal-overlay" id="glms-modal" onclick="if(event.target===this)closeGLMSModal()">
+  <div class="glms-modal">
+    <div class="glms-modal-header">
+      <div class="left">
+        <span class="cat-tag" id="glms-modal-cat">CATEGORY</span>
+        <h3 id="glms-modal-title">Course Title</h3>
+      </div>
+      <button class="glms-modal-close" onclick="closeGLMSModal()">&times;</button>
+    </div>
+    <div class="glms-modal-body">
+      <div class="glms-modal-left">
+        <div class="glms-video" id="glms-video">
+          <span class="glms-video-title" id="glms-video-title">Video Preview</span>
+          <button class="glms-play-btn" id="glms-play-btn" onclick="toggleGLMSPlay()">&#9654;</button>
+        </div>
+        <div class="glms-video-controls">
+          <button class="glms-video-ctrl-btn" onclick="toggleGLMSPlay()" id="glms-ctrl-play">&#9654;</button>
+          <span class="glms-video-time" id="glms-video-time">00:00 / 12:00</span>
+          <div class="glms-video-progress" onclick="seekGLMSVideo(event)"><div class="glms-video-progress-fill" id="glms-video-progress-fill"></div></div>
+          <button class="glms-video-ctrl-btn" title="Volume">&#128266;</button>
+          <button class="glms-video-ctrl-btn" title="Fullscreen">&#9974;</button>
+        </div>
+      </div>
+      <div class="glms-modal-right">
+        <div class="glms-modal-section">
+          <h4>&#128221; About this Course</h4>
+          <div class="glms-modal-desc" id="glms-modal-desc">Description goes here.</div>
+        </div>
+        <div class="glms-modal-section">
+          <h4>&#127919; Learning Objectives</h4>
+          <ul class="glms-modal-list" id="glms-modal-objectives"></ul>
+        </div>
+        <div class="glms-modal-section">
+          <h4>&#128104; Instructor</h4>
+          <div class="glms-instructor">
+            <div class="avt" id="glms-instructor-avt">SK</div>
+            <div class="info"><div class="nm" id="glms-instructor-name">Dr. Sarah Kim</div><div class="ttl" id="glms-instructor-title">Senior CX Trainer</div></div>
+          </div>
+        </div>
+        <div class="glms-modal-section">
+          <h4>&#128203; Used in QA Evaluation Items</h4>
+          <div class="glms-reverse-chips" id="glms-reverse-chips"></div>
+        </div>
+        <div class="glms-modal-section">
+          <h4>&#128202; Your Progress</h4>
+          <div class="glms-modal-progress">
+            <div style="display:flex;justify-content:space-between;font-size:12px"><span id="glms-modal-status-text">Not Started</span><strong id="glms-modal-pct">0%</strong></div>
+            <div class="glms-modal-progress-bar"><div class="glms-modal-progress-fill" id="glms-modal-pbar" style="width:0%"></div></div>
+            <div class="glms-modal-progress-meta"><span>Watched: <strong id="glms-modal-watched">0s</strong></span><span>Total: <strong id="glms-modal-total">12 min</strong></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="glms-modal-footer">
+      <div class="glms-modal-status" id="glms-modal-footer-status">&#9201; Track your learning progress in real time</div>
+      <div class="glms-modal-actions">
+        <button class="glms-btn secondary" onclick="resetGLMSProgress()">&#8635; Reset</button>
+        <button class="glms-btn primary" id="glms-complete-btn" onclick="markGLMSComplete()">&#10003; Mark as Complete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="qa-save-toast" id="qa-toast">Saved successfully!</div>
+<script>
+const SUBSIDIARIES = [
+  {code:'LGEAI', name:'United States', region:'English', score:89.2, prev:89.8, count:1486, gdpRank:1},
+  {code:'LGECI', name:'Canada', region:'English', score:82.4, prev:82.3, count:1110, gdpRank:9},
+  {code:'LGEAP', name:'Australia', region:'English', score:91.9, prev:92.5, count:344, gdpRank:12},
+  {code:'LGEUK', name:'United Kingdom', region:'English', score:90.9, prev:89.9, count:814, gdpRank:6},
+  {code:'LGEAG', name:'Austria', region:'EUROPE', score:91.3, prev:90.0, count:1274, gdpRank:26},
+  {code:'LGECK', name:'Czech Republic', region:'EUROPE', score:85.4, prev:85.8, count:1045, gdpRank:35},
+  {code:'LGEFS', name:'France', region:'EUROPE', score:77.6, prev:76.2, count:1654, gdpRank:7},
+  {code:'LGEDG', name:'Germany', region:'EUROPE', score:89.5, prev:88.0, count:531, gdpRank:3},
+  {code:'LGEHS', name:'Greece', region:'EUROPE', score:86.4, prev:85.0, count:1241, gdpRank:38},
+  {code:'LGEMK', name:'Hungary', region:'EUROPE', score:83.2, prev:83.0, count:819, gdpRank:39},
+  {code:'LGEIS', name:'Italy', region:'EUROPE', score:76.7, prev:76.0, count:1640, gdpRank:8},
+  {code:'LGELA', name:'Latvia', region:'EUROPE', score:87.3, prev:86.8, count:2476, gdpRank:44},
+  {code:'LGEBN', name:'Netherlands', region:'EUROPE', score:91.4, prev:91.4, count:1151, gdpRank:17},
+  {code:'LGEPL', name:'Poland', region:'EUROPE', score:92.7, prev:92.2, count:411, gdpRank:20},
+  {code:'LGEPT', name:'Portugal', region:'EUROPE', score:81.5, prev:80.2, count:477, gdpRank:37},
+  {code:'LGERO', name:'Romania', region:'EUROPE', score:87.9, prev:88.3, count:808, gdpRank:36},
+  {code:'LGEES', name:'Spain', region:'EUROPE', score:77.7, prev:76.2, count:2231, gdpRank:14},
+  {code:'LGESW', name:'Sweden', region:'EUROPE', score:78.2, prev:77.5, count:1152, gdpRank:22},
+  {code:'LGEAR', name:'Argentina', region:'LATAM', score:78.3, prev:76.8, count:1878, gdpRank:21},
+  {code:'LGESP', name:'Brazil', region:'LATAM', score:83.3, prev:82.9, count:369, gdpRank:10},
+  {code:'LGECL', name:'Chile', region:'LATAM', score:90.6, prev:91.5, count:994, gdpRank:32},
+  {code:'LGECB', name:'Colombia', region:'LATAM', score:89.6, prev:89.8, count:1824, gdpRank:33},
+  {code:'LGEMS', name:'Mexico', region:'LATAM', score:81.2, prev:81.9, count:2152, gdpRank:13},
+  {code:'LGEPS', name:'Panama', region:'LATAM', score:87.9, prev:87.6, count:2393, gdpRank:50},
+  {code:'LGEPR', name:'Peru', region:'LATAM', score:91.7, prev:91.3, count:742, gdpRank:34},
+  {code:'LGEAS', name:'Algeria', region:'MEA', score:90.8, prev:89.8, count:2144, gdpRank:40},
+  {code:'LGEEG', name:'Egypt', region:'MEA', score:88.9, prev:88.4, count:1955, gdpRank:30},
+  {code:'LGELF', name:'Jordan', region:'MEA', score:83.1, prev:83.6, count:340, gdpRank:45},
+  {code:'LGEEF', name:'Kenya', region:'MEA', score:79.5, prev:79.9, count:1961, gdpRank:43},
+  {code:'LGEMC', name:'Morocco', region:'MEA', score:79.5, prev:78.6, count:284, gdpRank:42},
+  {code:'LGEAF', name:'Nigeria', region:'MEA', score:80.5, prev:79.6, count:2491, gdpRank:31},
+  {code:'LGESJ', name:'Saudi Arabia', region:'MEA', score:82.4, prev:82.8, count:233, gdpRank:16},
+  {code:'LGESA', name:'South Africa', region:'MEA', score:92.0, prev:91.9, count:1120, gdpRank:32},
+  {code:'LGETK', name:'Turkiye', region:'MEA', score:89.8, prev:88.7, count:2294, gdpRank:18},
+  {code:'LGEGF', name:'UAE', region:'MEA', score:88.4, prev:88.9, count:626, gdpRank:25},
+  {code:'LGERA', name:'Kazakhstan', region:'CIS', score:77.1, prev:77.1, count:2469, gdpRank:41},
+  {code:'LGEAK', name:'Russian Federation', region:'CIS', score:83.5, prev:83.1, count:2297, gdpRank:11},
+  {code:'LGECH', name:'China', region:'ASIA', score:92.2, prev:92.1, count:2154, gdpRank:2},
+  {code:'LGEHK', name:'Hong Kong', region:'ASIA', score:88.4, prev:87.5, count:1994, gdpRank:24},
+  {code:'LGEID', name:'Indonesia', region:'ASIA', score:90.1, prev:89.3, count:1612, gdpRank:15},
+  {code:'LGEJP', name:'Japan', region:'ASIA', score:91.9, prev:92.8, count:580, gdpRank:4},
+  {code:'LGEML', name:'Malaysia', region:'ASIA', score:78.4, prev:78.9, count:1940, gdpRank:29},
+  {code:'LGEPH', name:'Philippines', region:'ASIA', score:83.9, prev:84.2, count:1839, gdpRank:27},
+  {code:'LGESL', name:'Singapore', region:'ASIA', score:90.8, prev:90.7, count:1684, gdpRank:23},
+  {code:'LGETT', name:'Taiwan', region:'ASIA', score:85.3, prev:85.0, count:533, gdpRank:19},
+  {code:'LGETH', name:'Thailand', region:'ASIA', score:78.2, prev:78.1, count:1247, gdpRank:28},
+  {code:'LGEVH', name:'Vietnam', region:'ASIA', score:80.5, prev:81.0, count:852, gdpRank:34},
+  {code:'LGEIL', name:'India', region:'India', score:77.5, prev:78.3, count:599, gdpRank:5}
+];
+const REGIONS = ['English','EUROPE','LATAM','MEA','CIS','ASIA','India'];
+const REGION_COLORS = {English:'#FD312E', EUROPE:'#A50034', LATAM:'#F59E0B', MEA:'#10B981', CIS:'#6366F1', ASIA:'#8B5CF6', India:'#EC4899'};
+const REGION_DISPLAY_NAME = {English:'ENGLISH', EUROPE:'EUROPE', LATAM:'LATAM', MEA:'MEA', CIS:'CIS', ASIA:'ASIA', India:'INDIA'};
+const CATEGORIES = ['Reliability','Friendliness','Proactiveness','Physical Env.'];
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun'];
+const HEATMAP_DATA = SUBSIDIARIES.map(s => {
+  const base = s.score, seed = s.code.charCodeAt(0)+s.code.charCodeAt(1);
+  return {code:s.code, scores:[
+    Math.max(60, Math.min(100, base + ((seed%70)/10 - 3.5))),
+    Math.max(60, Math.min(100, base + ((seed%50)/10 - 2.5))),
+    Math.max(60, Math.min(100, base + ((seed%60)/10 - 3.0))),
+    Math.max(60, Math.min(100, base + ((seed%40)/10 - 2.0)))
+  ]};
+});
+
+/* === v10: Real-world monthly trend data per subsidiary (Jan..Jun) with cross-overs === */
+const TREND_DATA = {
+  /* User-specified exact data for top 5 EU subsidiaries */
+  LGEPL: [89.6, 93.1, 90.9, 93.6, 94.3, 94.8],
+  LGEBN: [91.8, 93.0, 90.0, 90.8, 92.5, 93.2],
+  LGEAG: [89.8, 89.0, 91.7, 93.0, 93.5, 93.8],
+  LGEDG: [90.7, 89.8, 87.7, 87.1, 90.1, 91.6],
+  LGERO: [85.1, 86.8, 88.6, 87.4, 89.3, 89.7],
+  /* Realistic profiles for other subsidiaries (with cross-overs) */
+  LGEAI: [86.8, 88.4, 90.1, 87.9, 88.8, 89.2],
+  LGEUK: [88.6, 90.5, 89.2, 91.3, 90.8, 90.9],
+  LGEAP: [93.2, 91.5, 89.8, 92.4, 91.6, 91.9],
+  LGECI: [83.9, 81.7, 84.2, 80.8, 82.6, 82.4],
+  LGECK: [83.2, 86.7, 84.1, 87.5, 85.3, 85.4],
+  LGEFS: [80.3, 76.5, 78.7, 75.4, 77.1, 77.6],
+  LGEHS: [83.1, 87.8, 84.5, 88.4, 86.6, 86.4],
+  LGEMK: [85.4, 81.8, 83.6, 80.9, 83.7, 83.2],
+  LGEIS: [78.9, 75.1, 76.8, 73.5, 76.4, 76.7],
+  LGELA: [84.6, 88.9, 85.8, 89.2, 87.5, 87.3],
+  LGEPT: [78.6, 83.4, 80.1, 84.0, 81.8, 81.5],
+  LGEES: [80.2, 76.4, 78.9, 75.3, 77.4, 77.7],
+  LGESW: [81.4, 76.8, 79.5, 75.6, 78.0, 78.2],
+  LGEAR: [75.1, 79.7, 76.2, 80.4, 78.1, 78.3],
+  LGESP: [80.8, 84.7, 82.0, 85.3, 83.5, 83.3],
+  LGECL: [93.2, 88.9, 91.3, 89.5, 90.4, 90.6],
+  LGECB: [86.5, 91.3, 88.0, 91.8, 89.8, 89.6],
+  LGEMS: [83.4, 79.0, 81.6, 78.5, 81.4, 81.2],
+  LGEPS: [85.1, 89.7, 86.4, 90.1, 88.2, 87.9],
+  LGEPR: [88.9, 93.8, 90.5, 94.0, 91.8, 91.7],
+  LGEAS: [87.6, 92.5, 89.2, 92.8, 90.9, 90.8],
+  LGEEG: [85.8, 90.7, 87.3, 91.0, 89.0, 88.9],
+  LGELF: [85.4, 80.7, 83.5, 80.2, 83.3, 83.1],
+  LGEEF: [82.1, 77.4, 80.2, 76.7, 79.8, 79.5],
+  LGEMC: [76.8, 81.7, 78.3, 82.0, 79.7, 79.5],
+  LGEAF: [77.4, 82.4, 79.0, 82.7, 80.6, 80.5],
+  LGESJ: [84.5, 80.0, 82.7, 79.4, 82.6, 82.4],
+  LGESA: [88.4, 93.6, 90.0, 93.9, 92.1, 92.0],
+  LGETK: [86.7, 91.7, 88.2, 92.0, 89.9, 89.8],
+  LGEGF: [90.2, 86.0, 88.7, 85.5, 88.5, 88.4],
+  LGERA: [73.9, 79.2, 75.8, 79.5, 77.3, 77.1],
+  LGEAK: [85.7, 81.2, 84.0, 80.8, 83.6, 83.5],
+  LGECH: [89.0, 94.2, 90.7, 94.5, 92.3, 92.2],
+  LGEHK: [85.4, 90.4, 86.9, 90.7, 88.6, 88.4],
+  LGEID: [87.0, 92.0, 88.5, 92.3, 90.3, 90.1],
+  LGEJP: [93.8, 89.7, 92.4, 89.1, 92.0, 91.9],
+  LGEML: [80.4, 76.1, 78.8, 75.3, 78.5, 78.4],
+  LGEPH: [81.0, 85.8, 82.4, 86.1, 84.0, 83.9],
+  LGESL: [87.8, 92.7, 89.3, 93.0, 90.9, 90.8],
+  LGETT: [82.5, 87.1, 83.8, 87.4, 85.4, 85.3],
+  LGETH: [80.4, 76.0, 78.7, 75.5, 78.4, 78.2],
+  LGEVH: [77.4, 82.3, 78.9, 82.6, 80.6, 80.5],
+  LGEIL: [80.5, 76.0, 78.5, 75.4, 77.7, 77.5]
+};
+
+const EVAL_ITEMS = [
+  {name:'Greeting', cat:'Friendliness', pts:3, critical:true, rate:98.2},
+  {name:'Identity Verification', cat:'Reliability', pts:5, critical:true, rate:96.4},
+  {name:'Issue Understanding', cat:'Proactiveness', pts:10, critical:false, rate:88.1},
+  {name:'Active Listening', cat:'Friendliness', pts:5, critical:false, rate:72.5},
+  {name:'Empathy Expression', cat:'Friendliness', pts:5, critical:false, rate:81.3},
+  {name:'Accurate Information', cat:'Reliability', pts:10, critical:true, rate:91.2},
+  {name:'Solution Provision', cat:'Proactiveness', pts:10, critical:false, rate:84.7},
+  {name:'Cross-sell Effort', cat:'Proactiveness', pts:3, critical:false, rate:62.4},
+  {name:'Hold Procedure', cat:'Reliability', pts:3, critical:false, rate:79.8},
+  {name:'Transfer Procedure', cat:'Reliability', pts:3, critical:false, rate:83.2},
+  {name:'Tone and Articulation', cat:'Friendliness', pts:3, critical:false, rate:86.1},
+  {name:'Professional Vocabulary', cat:'Friendliness', pts:3, critical:false, rate:88.4},
+  {name:'No Negative Wording', cat:'Friendliness', pts:3, critical:false, rate:76.5},
+  {name:'Background Noise Control', cat:'Physical Env.', pts:3, critical:false, rate:91.0},
+  {name:'Audio Quality', cat:'Physical Env.', pts:3, critical:false, rate:93.5},
+  {name:'Response Time', cat:'Physical Env.', pts:3, critical:false, rate:89.7},
+  {name:'No-Response Rule', cat:'Physical Env.', pts:3, critical:true, rate:95.2},
+  {name:'Mandatory Disclosure', cat:'Reliability', pts:5, critical:true, rate:90.4},
+  {name:'Call Summary', cat:'Proactiveness', pts:5, critical:false, rate:74.2},
+  {name:'Next Step Guidance', cat:'Proactiveness', pts:5, critical:false, rate:78.9},
+  {name:'Closing Greeting', cat:'Friendliness', pts:3, critical:true, rate:97.1},
+  {name:'Post-Call Hangup Rule', cat:'Friendliness', pts:3, critical:true, rate:94.6}
+];
+const TOP_PERFORMERS = [
+  {name:'Maria Santos', team:'Team Alpha', score:96.8, calls:142},
+  {name:'James Cooper', team:'Team Beta', score:95.4, calls:138},
+  {name:'Aisha Khan', team:'Team Alpha', score:94.9, calls:124},
+  {name:'Carlos Mendez', team:'Team Gamma', score:94.2, calls:156},
+  {name:'Linda Park', team:'Team Beta', score:93.7, calls:131}
+];
+const BOTTOM_PERFORMERS = [
+  {name:'Robert Lee', team:'Team Delta', score:71.2, calls:98, focus:'Active Listening'},
+  {name:'Sofia Garcia', team:'Team Delta', score:73.5, calls:104, focus:'Empathy Expression'},
+  {name:'Michael Wong', team:'Team Echo', score:74.8, calls:89, focus:'Solution Provision'},
+  {name:'Priya Patel', team:'Team Delta', score:75.9, calls:112, focus:'Accurate Information'},
+  {name:'Daniel Kim', team:'Team Echo', score:76.4, calls:95, focus:'Call Summary'}
+];
+
+/* v8/v10: 3 mappings removed - those items show "— No course —" instead of View Training */
+const GLMS_ITEM_MAP = {
+  'Greeting':'C-001',
+  'Closing':'C-001',
+  'Ending the call after closing':'C-001',
+  'Required Information Verification (Model Name, S/N)':'C-002',
+  'Accurate guidance':'C-003',
+  'Feasibility of Action Steps':'C-003',
+  'Understanding the customer inquiry':'C-004',
+  'Active listening':'C-004',
+  'Empathy Expression':'C-005',
+  'Correct expression':'C-006',
+  'polite expression':'C-006',
+  'Pre-hold Acknowledgment':'C-007',
+  'Call Transfer Guide':'C-008',
+  'Confirmation of Resolution':'C-008',
+  'Prompt response':'C-005',
+  'Checking for Additional Inquiries':'C-004',
+  'Pace':'C-006',
+  'Verbal Habits':'C-006',
+  'Pronunciation':'C-006',
+  'Intonation':'C-006',
+  'Background Noise':'C-007',
+  'After-Call Work (ACW) Management':'C-008'
+};
+const GLMS_COURSES = [
+  {id:'C-001', cat:'Communication', title:'Standard Greeting & Opening Script Mastery', dur:'12 min', totalSec:720, stars:5, level:'Basic', thumb:'c1', icon:'\uD83D\uDC4B',
+   desc:'Master the LG-standard call greeting flow that creates a positive first impression with every customer. Covers verbal greeting, callback number request, and structured opening within the first 15 seconds.',
+   objectives:['Deliver a professional greeting using the LG standard script','Request callback number naturally without sounding scripted','Set the right tone for the entire conversation','Avoid common opening pitfalls that reduce CSAT'],
+   instructor:{name:'Dr. Sarah Kim', title:'Senior CX Trainer \u00B7 LG Academy', initials:'SK'}},
+  {id:'C-002', cat:'Compliance', title:'Customer Identification & Data Validation', dur:'18 min', totalSec:1080, stars:5, level:'Basic', thumb:'c2', icon:'\uD83E\uDEAA',
+   desc:'Learn the mandatory KYC validation steps for every inbound contact. This course covers GDPR-compliant identity verification, address confirmation, and proper handling of authorized third parties.',
+   objectives:['Apply the 3-point identity verification standard','Identify red flags for impersonation attempts','Comply with GDPR / CCPA data-handling rules','Document validation outcomes in CRM'],
+   instructor:{name:'Marcus Chen', title:'Compliance Lead \u00B7 Global QA', initials:'MC'}},
+  {id:'C-003', cat:'Product', title:'Product Information Confirmation Flow', dur:'22 min', totalSec:1320, stars:4, level:'Intermediate', thumb:'c3', icon:'\uD83D\uDCE6',
+   desc:'Confirm the exact model, serial, and purchase date for accurate case handling. Covers model lookup tools, warranty window calculation, and Smart Diagnosis integration.',
+   objectives:['Locate model and serial numbers across appliance lines','Calculate warranty windows accurately','Use Smart Diagnosis to confirm symptoms','Avoid mis-classification at protocol creation'],
+   instructor:{name:'Elena Rodriguez', title:'Product Specialist \u00B7 HE Division', initials:'ER'}},
+  {id:'C-004', cat:'Discovery', title:'Effective Issue Probing & History Discovery', dur:'25 min', totalSec:1500, stars:5, level:'Intermediate', thumb:'c4', icon:'\uD83D\uDD0D',
+   desc:'Use open-ended questions and active probing to uncover the full context of the customer issue before proposing solutions. Reduces repeat contacts and improves FCR.',
+   objectives:['Apply the 5W1H probing framework','Detect previous contact history quickly','Frame follow-up questions without sounding repetitive','Summarize understanding before proceeding'],
+   instructor:{name:'James Park', title:'CX Coach \u00B7 APAC Region', initials:'JP'}},
+  {id:'C-005', cat:'Soft Skills', title:'Empathy & Emotional Validation in Calls', dur:'30 min', totalSec:1800, stars:5, level:'Intermediate', thumb:'c5', icon:'\uD83D\uDC97',
+   desc:'Build emotional connection with frustrated customers. Learn validation phrases that de-escalate without overpromising and adjust tone to match emotional state.',
+   objectives:['Recognize 7 emotional states from voice cues','Use validating language that reduces frustration','Personalize treatment using the customer name effectively','Maintain professionalism under verbal pressure'],
+   instructor:{name:'Dr. Priya Sharma', title:'CX Psychologist \u00B7 LG Academy', initials:'PS'}},
+  {id:'C-006', cat:'Language', title:'Professional Vocabulary & Clear Articulation', dur:'15 min', totalSec:900, stars:4, level:'Basic', thumb:'c1', icon:'\uD83D\uDDE3\uFE0F',
+   desc:'Eliminate filler words, slang, and ambiguous phrasing. Replace negative wording with positive alternatives that protect brand voice.',
+   objectives:['Identify and remove 20 common filler words','Translate negative phrases into positive ones','Pronounce technical product names correctly','Adjust pace based on customer comprehension'],
+   instructor:{name:'Anna Schmidt', title:'Language Coach \u00B7 EU Region', initials:'AS'}},
+  {id:'C-007', cat:'Procedure', title:'Hold Time & Pause Notification Standards', dur:'10 min', totalSec:600, stars:5, level:'Basic', thumb:'c6', icon:'\u23F8\uFE0F',
+   desc:'Every pause longer than 20 seconds requires customer notification. This short course covers the exact phrasing and return-with-update cadence required by LG QA standards.',
+   objectives:['Notify before every hold/pause over 20 seconds','Provide an update every 60 seconds during long holds','Request permission before placing on hold','Apologize and recap after returning from hold'],
+   instructor:{name:'Tomas Silva', title:'Procedure Lead \u00B7 LATAM', initials:'TS'}},
+  {id:'C-008', cat:'Procedure', title:'Critical Procedure Compliance Mastery', dur:'40 min', totalSec:2400, stars:5, level:'Advanced', thumb:'c2', icon:'\u2699\uFE0F',
+   desc:'Deep dive into LG critical procedure flows: parts-unavailable handling, escalation paths, protocol creation, and 5-business-day response commitments.',
+   objectives:['Execute the parts-unavailable flow end-to-end','Route correctly to supervision when needed','Create and number protocols for traceability','Communicate response SLA to the customer'],
+   instructor:{name:'Olivia Brown', title:'Senior QA Lead \u00B7 Global HQ', initials:'OB'}}
+];
+const GLMS_REVERSE_MAP = (function(){
+  const r = {};
+  Object.keys(GLMS_ITEM_MAP).forEach(item=>{
+    const cid = GLMS_ITEM_MAP[item];
+    if(!r[cid]) r[cid]=[];
+    r[cid].push(item);
+  });
+  return r;
+})();
+
+/* v10: Get monthly trend for a subsidiary - uses TREND_DATA or generates plausible series */
+function getTrendForSub(s){
+  if(TREND_DATA[s.code]) return TREND_DATA[s.code].slice();
+  /* Fallback: generate from base score with cross-over patterns */
+  const seed = s.code.charCodeAt(0)+s.code.charCodeAt(1)*3;
+  const baseShift = (s.score - 85) * 0.6;
+  return [0,1,2,3,4,5].map(j=>{
+    const wave = Math.sin(seed*0.41 + j*1.3)*2.2 + Math.cos(seed*0.27 + j*0.7)*1.5;
+    return +Math.max(70, Math.min(98, s.score + baseShift*0.1 + wave - 1.5 + j*0.4)).toFixed(1);
+  });
+}
+
+let selectedSubsidiaries = new Set(SUBSIDIARIES.map(s=>s.code));
+let selectedChannels = new Set(['all']);
+let selectedScore = 'all';
+let selectedNps = 'all';
+let subSearchTerm = '';
+let dateRangeActive = false;
+let savedDateFrom = '2026-06-01';
+let savedDateTo = '2026-06-30';
+const DEFAULT_FROM = '2026-06-01';
+const DEFAULT_TO = '2026-06-30';
+
+function toggleDatePopup(e){ e.stopPropagation(); document.getElementById('date-popup').classList.toggle('open'); }
+function setDatePreset(p, btn){
+  const today = new Date('2026-06-24T00:00:00');
+  const fmt=(d)=>{const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');return y+'-'+m+'-'+dd;};
+  let from = new Date(today), to = new Date(today);
+  if(p==='week'){ from = new Date(today); from.setDate(today.getDate()-today.getDay()); }
+  else if(p==='month'){ from = new Date(today.getFullYear(), today.getMonth(), 1); }
+  else if(p==='30d'){ from = new Date(today); from.setDate(today.getDate()-30); }
+  else if(p==='90d'){ from = new Date(today); from.setDate(today.getDate()-90); }
+  else if(p==='ytd'){ from = new Date(today.getFullYear(), 0, 1); }
+  document.getElementById('f-date-from').value = fmt(from);
+  document.getElementById('f-date-to').value = fmt(to);
+  document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+}
+function applyDatePopup(){
+  savedDateFrom = document.getElementById('f-date-from').value;
+  savedDateTo = document.getElementById('f-date-to').value;
+  dateRangeActive = !(savedDateFrom===DEFAULT_FROM && savedDateTo===DEFAULT_TO);
+  document.getElementById('date-dot').style.display = dateRangeActive?'block':'none';
+  document.getElementById('date-icon-btn').classList.toggle('active', dateRangeActive);
+  document.getElementById('date-popup').classList.remove('open');
+  refreshMain();
+}
+function cancelDatePopup(){
+  document.getElementById('f-date-from').value = savedDateFrom;
+  document.getElementById('f-date-to').value = savedDateTo;
+  document.getElementById('date-popup').classList.remove('open');
+}
+document.addEventListener('click', (e)=>{
+  const w = document.getElementById('date-icon-wrap');
+  if(w && !w.contains(e.target)) document.getElementById('date-popup').classList.remove('open');
+  ['ms-wrap','score-wrap','nps-wrap'].forEach(id=>{
+    const x = document.getElementById(id);
+    if(x && !x.contains(e.target)){
+      const m = x.querySelector('.multi-select-menu, .icon-select-menu');
+      if(m) m.classList.remove('open');
+    }
+  });
+});
+
+function getAvailableSubs(){
+  const r = document.getElementById('f-region').value;
+  return r==='all' ? SUBSIDIARIES : SUBSIDIARIES.filter(s=>s.region===r);
+}
+function buildSubsidiaryMenu(){
+  const a = getAvailableSubs();
+  selectedSubsidiaries = new Set(a.map(s=>s.code));
+  renderSubsidiaryMenu();
+}
+function renderSubsidiaryMenu(){
+  const a = getAvailableSubs();
+  const f = a.filter(s=>!subSearchTerm||s.code.toLowerCase().includes(subSearchTerm)||s.name.toLowerCase().includes(subSearchTerm));
+  const g={}; f.forEach(s=>{if(!g[s.region])g[s.region]=[]; g[s.region].push(s);});
+  let h = '<div class="ms-search"><input type="text" placeholder="Search..." oninput="onSubSearch(this)" value="'+subSearchTerm+'"></div><div class="ms-list"><div class="multi-select-item all-item"><input type="checkbox" id="ms-all" '+(a.every(s=>selectedSubsidiaries.has(s.code))?'checked':'')+' onchange="toggleAllSubs(this)"><label for="ms-all" style="cursor:pointer;flex:1">All Subsidiaries ('+a.length+')</label></div>';
+  REGIONS.forEach(reg=>{
+    if(!g[reg]||g[reg].length===0) return;
+    h += '<div class="region-header">'+reg+' ('+g[reg].length+')</div>';
+    g[reg].forEach(s=>{
+      h += '<div class="multi-select-item"><input type="checkbox" id="ms-'+s.code+'" '+(selectedSubsidiaries.has(s.code)?'checked':'')+' onchange="toggleSubsidiary(\''+s.code+'\', this)"><label for="ms-'+s.code+'" style="cursor:pointer;flex:1"><strong>'+s.code+'</strong> <span style="color:var(--text-sub);font-size:12px"> &middot; '+s.name+'</span></label></div>';
+    });
+  });
+  h += '</div>';
+  document.getElementById('ms-menu').innerHTML = h;
+  updateSubsidiaryLabel();
+}
+function onSubSearch(i){ subSearchTerm = i.value.toLowerCase(); renderSubsidiaryMenu(); const x = document.querySelector('.ms-search input'); if(x){x.focus(); x.setSelectionRange(x.value.length,x.value.length);} }
+function toggleSubsidiaryMenu(e){ e.stopPropagation(); document.getElementById('ms-menu').classList.toggle('open'); }
+function toggleAllSubs(cb){ const a = getAvailableSubs(); selectedSubsidiaries = cb.checked ? new Set(a.map(s=>s.code)) : new Set(); renderSubsidiaryMenu(); }
+function toggleSubsidiary(c, cb){ if(cb.checked) selectedSubsidiaries.add(c); else selectedSubsidiaries.delete(c); const a=document.getElementById('ms-all'); if(a) a.checked=getAvailableSubs().every(s=>selectedSubsidiaries.has(s.code)); updateSubsidiaryLabel(); }
+function updateSubsidiaryLabel(){
+  const a = getAvailableSubs(), lbl = document.getElementById('ms-label'), c = selectedSubsidiaries.size;
+  if(c===0) lbl.innerHTML = '<span style="color:var(--text-sub)">None selected</span>';
+  else if(c===a.length) lbl.innerHTML = 'All Subsidiaries <span class="ms-tag">'+c+'</span>';
+  else if(c===1) lbl.innerHTML = '<strong>'+[...selectedSubsidiaries][0]+'</strong>';
+  else lbl.innerHTML = c+' selected <span class="ms-tag">'+c+'</span>';
+}
+function onRegionChange(){ buildSubsidiaryMenu(); refreshMain(); }
+function toggleChannel(ch){
+  if(ch==='all') selectedChannels = new Set(['all']);
+  else { selectedChannels.delete('all'); if(selectedChannels.has(ch)) selectedChannels.delete(ch); else selectedChannels.add(ch); if(selectedChannels.size===0) selectedChannels = new Set(['all']); }
+  document.querySelectorAll('.channel-btn').forEach(b=>b.classList.toggle('active', selectedChannels.has(b.dataset.ch)));
+  refreshMain();
+}
+function toggleIconMenu(w, e){ e.stopPropagation(); const m = document.getElementById(w+'-menu'); document.querySelectorAll('.icon-select-menu').forEach(x=>{if(x!==m) x.classList.remove('open');}); m.classList.toggle('open'); }
+function selectScore(v, l){ selectedScore=v; document.getElementById('score-label').innerHTML=l; document.querySelectorAll('#score-menu .icon-option').forEach(o=>o.classList.toggle('selected', o.dataset.val===v)); document.getElementById('score-menu').classList.remove('open'); refreshMain(); }
+function selectNps(v, l){ selectedNps=v; document.getElementById('nps-label').innerHTML=l; document.querySelectorAll('#nps-menu .icon-option').forEach(o=>o.classList.toggle('selected', o.dataset.val===v)); document.getElementById('nps-menu').classList.remove('open'); refreshMain(); }
+function resetFilters(){
+  document.getElementById('f-region').value='all';
+  document.getElementById('f-date-from').value=DEFAULT_FROM;
+  document.getElementById('f-date-to').value=DEFAULT_TO;
+  savedDateFrom=DEFAULT_FROM; savedDateTo=DEFAULT_TO; dateRangeActive=false;
+  document.getElementById('date-dot').style.display='none';
+  document.getElementById('date-icon-btn').classList.remove('active');
+  document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active'));
+  selectedChannels = new Set(['all']); selectedScore='all'; selectedNps='all';
+  document.querySelectorAll('.channel-btn').forEach(b=>b.classList.toggle('active', b.dataset.ch==='all'));
+  selectScore('all','&#11088; All Scores');
+  selectNps('all','<span class="dot" style="background:#9CA3AF"></span> All NPS');
+  subSearchTerm=''; buildSubsidiaryMenu(); refreshMain();
+}
+function renderActiveFilterChips(){
+  const chips=[];
+  const r = document.getElementById('f-region').value;
+  if(r!=='all') chips.push({label:'Region: '+r, clear:()=>{document.getElementById('f-region').value='all'; onRegionChange();}});
+  if(dateRangeActive) chips.push({label:savedDateFrom+' \u2192 '+savedDateTo, clear:()=>{document.getElementById('f-date-from').value=DEFAULT_FROM; document.getElementById('f-date-to').value=DEFAULT_TO; applyDatePopup();}});
+  if(!selectedChannels.has('all')) chips.push({label:'Channel: '+[...selectedChannels].join(','), clear:()=>toggleChannel('all')});
+  if(selectedScore!=='all') chips.push({label:'Score: '+selectedScore+'+', clear:()=>selectScore('all','&#11088; All Scores')});
+  if(selectedNps!=='all') chips.push({label:'NPS: '+selectedNps, clear:()=>selectNps('all','<span class="dot" style="background:#9CA3AF"></span> All NPS')});
+  document.getElementById('active-filters').innerHTML = chips.map((c,i)=>'<span class="chip">'+c.label+' <span class="x" onclick="clearChip('+i+')">&times;</span></span>').join('');
+  window._chips = chips;
+}
+function clearChip(i){ window._chips[i].clear(); }
+
+let currentDetailSub = 'LGEAI';
+function goPage(page, code){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  if(page==='main'){
+    document.getElementById('page-main').classList.add('active');
+    document.getElementById('breadcrumb').innerHTML = '<span>&#127968;</span> <a onclick="goPage(\'main\')">Global Overview</a>';
+  } else if(page==='detail'){
+    if(code) currentDetailSub = code;
+    document.getElementById('page-detail').classList.add('active');
+    const s = SUBSIDIARIES.find(x=>x.code===currentDetailSub);
+    document.getElementById('breadcrumb').innerHTML = '<span>&#127968;</span> <a onclick="goPage(\'main\')">Global Overview</a> <span>&rsaquo;</span> <strong>'+s.code+' &middot; '+s.name+'</strong>';
+    document.getElementById('d-sub').value = currentDetailSub;
+    renderDetail();
+  }
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ===== Region Group Separator Plugin (v7+) ===== */
+const regionBandsPlugin = {
+  id: 'regionBands',
+  beforeDatasetsDraw(chart, args, opts){
+    const {ctx, chartArea, scales:{y}} = chart;
+    const refs = (opts && opts.subRef) || [];
+    if(!refs.length) return;
+    const groups = [];
+    let cur = null;
+    refs.forEach((s,i)=>{
+      if(!cur || cur.region !== s.region){ cur = {region:s.region, idx:[i]}; groups.push(cur); }
+      else cur.idx.push(i);
+    });
+    ctx.save();
+    groups.forEach((g, gi)=>{
+      const first = g.idx[0], last = g.idx[g.idx.length-1];
+      const yFirst = y.getPixelForValue(first);
+      const yLast = y.getPixelForValue(last);
+      const half = Math.abs(y.getPixelForValue(1)-y.getPixelForValue(0))/2;
+      const top = Math.min(yFirst,yLast) - half;
+      const bot = Math.max(yFirst,yLast) + half;
+      ctx.fillStyle = gi % 2 === 0 ? 'rgba(165, 0, 52, 0.04)' : 'rgba(253, 49, 46, 0.025)';
+      ctx.fillRect(chartArea.left, top, chartArea.right-chartArea.left, bot-top);
+    });
+    ctx.restore();
+  },
+  afterDatasetsDraw(chart, args, opts){
+    const {ctx, chartArea, scales:{y}} = chart;
+    const refs = (opts && opts.subRef) || [];
+    if(!refs.length) return;
+    const groups = [];
+    let cur = null;
+    refs.forEach((s,i)=>{
+      if(!cur || cur.region !== s.region){ cur = {region:s.region, idx:[i]}; groups.push(cur); }
+      else cur.idx.push(i);
+    });
+    ctx.save();
+    groups.forEach((g, gi) => {
+      const first = g.idx[0];
+      const yFirst = y.getPixelForValue(first);
+      const half = Math.abs(y.getPixelForValue(1)-y.getPixelForValue(0))/2;
+      const groupTop = yFirst - half;
+      const regionColor = REGION_COLORS[g.region] || '#A50034';
+      const regionName = (REGION_DISPLAY_NAME[g.region] || g.region).toUpperCase();
+      const label = regionName + ' (' + g.idx.length + ')';
+      if(gi > 0){
+        ctx.strokeStyle = regionColor;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(chartArea.left, groupTop);
+        ctx.lineTo(chartArea.right, groupTop);
+        ctx.stroke();
+      } else {
+        ctx.strokeStyle = regionColor;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(chartArea.left, chartArea.top);
+        ctx.lineTo(chartArea.right, chartArea.top);
+        ctx.stroke();
+      }
+      ctx.fillStyle = regionColor;
+      const lastIdx = g.idx[g.idx.length-1];
+      const yLast = y.getPixelForValue(lastIdx);
+      const groupBot = yLast + half;
+      ctx.fillRect(chartArea.left, groupTop + (gi>0?2:1), 4, groupBot - groupTop - (gi>0?3:2));
+      ctx.font = '700 11px Roboto, sans-serif';
+      const padX = 10;
+      const textWidth = ctx.measureText(label).width;
+      const pillW = textWidth + padX*2 + 8;
+      const pillH = 22;
+      const pillX = chartArea.left + 10;
+      const pillY = groupTop + 4;
+      ctx.shadowColor = 'rgba(0,0,0,0.12)';
+      ctx.shadowBlur = 6;
+      ctx.shadowOffsetY = 2;
+      ctx.fillStyle = '#FFFFFF';
+      const r = 11;
+      ctx.beginPath();
+      ctx.moveTo(pillX + r, pillY);
+      ctx.lineTo(pillX + pillW - r, pillY);
+      ctx.quadraticCurveTo(pillX + pillW, pillY, pillX + pillW, pillY + r);
+      ctx.lineTo(pillX + pillW, pillY + pillH - r);
+      ctx.quadraticCurveTo(pillX + pillW, pillY + pillH, pillX + pillW - r, pillY + pillH);
+      ctx.lineTo(pillX + r, pillY + pillH);
+      ctx.quadraticCurveTo(pillX, pillY + pillH, pillX, pillY + pillH - r);
+      ctx.lineTo(pillX, pillY + r);
+      ctx.quadraticCurveTo(pillX, pillY, pillX + r, pillY);
+      ctx.closePath();
+      ctx.fill();
+      ctx.shadowColor = 'transparent';
+      ctx.shadowBlur = 0;
+      ctx.shadowOffsetY = 0;
+      ctx.strokeStyle = regionColor;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ctx.fillStyle = regionColor;
+      ctx.beginPath();
+      ctx.arc(pillX + padX - 2, pillY + pillH/2, 3.5, 0, Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = regionColor;
+      ctx.textBaseline = 'middle';
+      ctx.textAlign = 'left';
+      ctx.fillText(label, pillX + padX + 6, pillY + pillH/2 + 1);
+    });
+    ctx.restore();
+  }
+};
+
+let bulletChart, trendChart;
+function getFilteredSubs(){
+  const r = document.getElementById('f-region').value;
+  let f = r==='all' ? SUBSIDIARIES : SUBSIDIARIES.filter(s=>s.region===r);
+  f = f.filter(s=>selectedSubsidiaries.has(s.code));
+  if(selectedScore!=='all'){ const t=parseInt(selectedScore); f = f.filter(s=>s.score>=t); }
+  return f;
+}
+function scoreColor(s){ if(s>=90)return'#10B981'; if(s>=85)return'#34D399'; if(s>=80)return'#F59E0B'; if(s>=75)return'#F97316'; return'#A50034'; }
+function textContrastClass(score){
+  if(score >= 85 && score < 90) return 'text-dark';
+  return 'text-light';
+}
+
+function renderMain(){
+  let filt = getFilteredSubs();
+  let mult=1;
+  if(selectedNps==='promoter') mult=1.05; else if(selectedNps==='passive') mult=0.98; else if(selectedNps==='detractor') mult=0.88;
+  let cm=1;
+  if(!selectedChannels.has('all')) cm = selectedChannels.size*0.4;
+  if(dateRangeActive){ const d = Math.max(1, Math.round((new Date(savedDateTo)-new Date(savedDateFrom))/86400000)); cm *= Math.min(2, d/30); }
+  if(filt.length===0){
+    ['kpi-avg','kpi-rate','kpi-analyzed','kpi-total','kpi-coach','kpi-crit','kpi-excellent'].forEach(id=>{const el=document.getElementById(id); if(el) el.textContent='-';});
+  } else {
+    const avg = (filt.reduce((x,s)=>x+s.score,0)/filt.length)*mult;
+    const prevAvg = filt.reduce((x,s)=>x+s.prev,0)/filt.length;
+    document.getElementById('kpi-avg').textContent = Math.min(100,avg).toFixed(1);
+    const d = avg-prevAvg;
+    const dEl = document.getElementById('kpi-avg-d');
+    if(dEl){ dEl.innerHTML = (d>=0?'\u25B2 ':'\u25BC ')+Math.abs(d).toFixed(1)+'pt vs last month'; dEl.className = 'kpi-delta '+(d>=0?'up':'down'); }
+    const total = Math.floor(filt.reduce((x,s)=>x+s.count,0)*cm);
+    const analyzed = Math.floor(total * 0.182);
+    document.getElementById('kpi-total').textContent = total.toLocaleString();
+    document.getElementById('kpi-analyzed').textContent = analyzed.toLocaleString();
+    document.getElementById('kpi-rate').textContent = ((analyzed/total)*100).toFixed(1);
+    const coachCount = filt.filter(s=>s.score<80).length;
+    document.getElementById('kpi-coach').textContent = (coachCount/filt.length*100).toFixed(1);
+    const crit = filt.filter(s=>s.score<75).length;
+    document.getElementById('kpi-crit').textContent = Math.max(crit, 5);
+    const excellent = filt.filter(s=>s.score>=90).length;
+    document.getElementById('kpi-excellent').textContent = Math.round(excellent/filt.length*100);
+  }
+  const sorted = [...filt].sort((a,b)=>{
+    const ra=REGIONS.indexOf(a.region), rb=REGIONS.indexOf(b.region);
+    if(ra!==rb) return ra-rb;
+    return a.gdpRank - b.gdpRank;
+  });
+  const labels = sorted.map(s => s.code);
+  const data = sorted.map(s=>+(s.score*mult).toFixed(1));
+  const bgColors = sorted.map(s=>REGION_COLORS[s.region]||'#A50034');
+  const subRef = sorted.slice();
+  if(bulletChart) bulletChart.destroy();
+  bulletChart = new Chart(document.getElementById('bulletChart').getContext('2d'),{
+    type:'bar',
+    data:{labels:labels, datasets:[{label:'QA Score', data:data, backgroundColor:bgColors, borderRadius:4, barThickness:Math.max(10, Math.min(18, 460/Math.max(1,labels.length)))}]},
+    options:{
+      indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      layout:{padding:{left:4, right:8, top:4, bottom:4}},
+      onClick:(e,el)=>{ if(el.length){ const s = subRef[el[0].index]; if(s) goPage('detail', s.code); } },
+      onHover:(e,el)=>{ e.native.target.style.cursor = (el.length && subRef[el[0].index])?'pointer':'default'; },
+      plugins:{
+        regionBands: {subRef:subRef},
+        legend:{display:false},
+        tooltip:{callbacks:{label:(ctx)=>{ const s=subRef[ctx.dataIndex]; if(!s) return ''; return ['Country: '+s.name,'Region: '+s.region,'Score: '+(s.score*mult).toFixed(1)+' / 100','GDP Rank: #'+s.gdpRank,'Click to view detail \u2192'];}}}
+      },
+      scales:{x:{min:60,max:100,grid:{color:'#F0F0F2'},ticks:{font:{size:11}}}, y:{grid:{display:false},ticks:{font:{size:11,weight:'600'},autoSkip:false}}}
+    },
+    plugins:[{id:'tl', afterDraw(c){const{ctx,chartArea:{top,bottom},scales:{x}}=c; const xp=x.getPixelForValue(85); ctx.save(); ctx.strokeStyle='#FD312E'; ctx.lineWidth=2; ctx.setLineDash([6,4]); ctx.beginPath(); ctx.moveTo(xp,top); ctx.lineTo(xp,bottom); ctx.stroke(); ctx.fillStyle='#FD312E'; ctx.font='600 11px Roboto'; ctx.fillText('Target 85', xp+4, top+12); ctx.restore();}}, regionBandsPlugin]
+  });
+
+  /* v8/v10: Heatmap legend */
+  const legendBar = document.getElementById('heatmap-legend');
+  if(legendBar){
+    const legendItems = [
+      {label:'90+ Excellent',  color:'#10B981', tc:'#fff'},
+      {label:'85+ Very Good',  color:'#34D399', tc:'#064E3B'},
+      {label:'80+ Good',       color:'#F59E0B', tc:'#fff'},
+      {label:'75+ Average',    color:'#F97316', tc:'#fff'},
+      {label:'<75 Needs Coaching', color:'#A50034', tc:'#fff'}
+    ];
+    legendBar.innerHTML = '<span class="heatmap-legend-title">Score Scale:</span>' +
+      legendItems.map(it=>'<span class="heatmap-legend-chip" style="background:'+it.color+';color:'+it.tc+'"><span class="swatch" style="background:'+it.color+'"></span>'+it.label+'</span>').join('');
+  }
+
+  /* v8/v10: Enhanced heatmap */
+  const hm = document.getElementById('heatmap');
+  let h = '<div class="heatmap-header">Subsidiary</div>'
+        + '<div class="heatmap-header total-h">Total</div>'
+        + '<div class="heatmap-spacer"></div>'
+        + CATEGORIES.map(c=>'<div class="heatmap-header">'+c+'</div>').join('');
+  const grp = {};
+  sorted.forEach(s=>{ if(!grp[s.region]) grp[s.region]=[]; grp[s.region].push(s); });
+  REGIONS.forEach(reg=>{
+    if(!grp[reg] || grp[reg].length===0) return;
+    let regSum = 0, regCnt = 0;
+    grp[reg].forEach(s=>{
+      const row = HEATMAP_DATA.find(x=>x.code===s.code);
+      const total = row.scores.reduce((a,b)=>a+b,0)/row.scores.length;
+      regSum += total; regCnt++;
+    });
+    const regAvg = (regSum/regCnt).toFixed(1);
+    const regColor = REGION_COLORS[reg] || '#A50034';
+    const regName = (REGION_DISPLAY_NAME[reg]) || reg.toUpperCase();
+    h += '<div class="heatmap-region-header" style="border-left-color:'+regColor+';background:linear-gradient(90deg,'+regColor+'1f 0%,#FFFFFF 70%);color:'+regColor+'">'
+      + '<span class="reg-name">'+regName+'</span>'
+      + '<span class="reg-avg">Avg: <strong style="color:'+regColor+'">'+regAvg+'</strong></span>'
+      + '<span class="reg-count" style="background:'+regColor+'">'+grp[reg].length+' subs</span>'
+      + '</div>';
+    grp[reg].forEach((s, idx)=>{
+      const row = HEATMAP_DATA.find(x=>x.code===s.code);
+      const total = row.scores.reduce((a,b)=>a+b,0)/row.scores.length;
+      const zebraCls = (idx % 2 === 1) ? ' heatmap-row-zebra-label' : '';
+      h += '<div class="heatmap-label'+zebraCls+'" style="border-left-color:'+regColor+'">'
+        + '<span class="lbl-code">'+s.code+'</span>'
+        + '<span class="lbl-name">'+s.name+'</span>'
+        + '</div>';
+      h += '<div class="heatmap-cell total '+textContrastClass(total)+'" style="background:'+scoreColor(total)+'" onclick="goPage(\'detail\',\''+s.code+'\')" title="'+s.code+' ('+s.name+') Total: '+total.toFixed(1)+' / 100">'+total.toFixed(1)+'</div>';
+      h += '<div class="heatmap-spacer"></div>';
+      row.scores.forEach((sc,i)=>{
+        h += '<div class="heatmap-cell '+textContrastClass(sc)+'" style="background:'+scoreColor(sc)+'" onclick="goPage(\'detail\',\''+s.code+'\')" title="'+s.code+' ('+s.name+') '+CATEGORIES[i]+': '+sc.toFixed(1)+' / 100">'+sc.toFixed(1)+'</div>';
+      });
+    });
+  });
+  hm.innerHTML = h;
+
+  /* ===== v10: Trend chart and Monthly Performance Data Table ===== */
+  if(trendChart) trendChart.destroy();
+  const palette = ['#FD312E','#A50034','#1F2937','#6B7280','#F59E0B'];
+
+  /* Pick up to 5 trend subsidiaries based on filter */
+  let trendSubs;
+  let trendMetaText;
+  const regionVal = document.getElementById('f-region').value;
+  if(filt.length === 0){
+    trendSubs = SUBSIDIARIES.filter(s=>s.region==='EUROPE').sort((a,b)=>b.score-a.score).slice(0,5);
+    trendMetaText = 'Top 5 EU (default)';
+  } else if(filt.length <= 5){
+    trendSubs = filt.slice();
+    trendMetaText = (regionVal==='all') ? trendSubs.length+' Selected' : 'All '+regionVal+' ('+trendSubs.length+')';
+  } else {
+    trendSubs = [...filt].sort((a,b)=>b.score-a.score).slice(0,5);
+    trendMetaText = (regionVal==='all') ? 'Top 5 of '+filt.length+' Filtered' : 'Top 5 of '+regionVal+' ('+filt.length+')';
+  }
+  const trendMetaEl = document.getElementById('trend-region-meta');
+  if(trendMetaEl) trendMetaEl.textContent = trendMetaText;
+
+  /* Build trend series with cross-overs from TREND_DATA */
+  const trendSeries = trendSubs.map((s, i)=>{
+    return {
+      code: s.code,
+      name: s.name,
+      values: getTrendForSub(s).map(v=>+(v*mult).toFixed(1)),
+      color: palette[i % palette.length]
+    };
+  });
+
+  trendChart = new Chart(document.getElementById('trendChart').getContext('2d'),{
+    type:'line',
+    data:{
+      labels: MONTHS,
+      datasets: trendSeries.map(s=>({
+        label: s.code,
+        data: s.values,
+        borderColor: s.color,
+        backgroundColor: s.color + '22',
+        borderWidth: 2.5,
+        tension: 0.32,
+        pointRadius: 4.5,
+        pointHoverRadius: 7,
+        pointBackgroundColor: '#fff',
+        pointBorderWidth: 2.5,
+        pointBorderColor: s.color
+      }))
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'index', intersect:false},
+      plugins:{
+        legend:{position:'top', align:'end', labels:{font:{size:11, weight:'600'}, padding:10, boxWidth:14, usePointStyle:true, pointStyle:'circle'}},
+        tooltip:{callbacks:{
+          title: (items)=>'Month: '+items[0].label+' 2026',
+          label: (ctx)=>{
+            const s = trendSeries[ctx.datasetIndex];
+            return s.code+' ('+s.name+'): '+ctx.parsed.y.toFixed(1)+' pts';
+          }
+        }}
+      },
+      scales:{
+        y:{min:70, max:100, grid:{color:'#F0F0F2'}, ticks:{font:{size:11}, callback:(v)=>v}},
+        x:{grid:{display:false}, ticks:{font:{size:12, weight:'600'}}}
+      }
+    }
+  });
+
+  /* Build Monthly Performance Data table */
+  const tbl = document.getElementById('trendTable');
+  if(tbl){
+    let th = '<thead><tr><th class="sub-h">Sub.</th>';
+    MONTHS.forEach(m => th += '<th>'+m+'</th>');
+    th += '<th class="cum-h">Cum. Avg</th><th>Trend</th></tr></thead><tbody>';
+    trendSeries.forEach(s=>{
+      const cumAvg = +(s.values.reduce((a,b)=>a+b,0)/s.values.length).toFixed(1);
+      const delta = +(s.values[5] - s.values[0]).toFixed(1);
+      let arrowCls, arrowChar;
+      if(delta >= 0.5){ arrowCls='up'; arrowChar='\u25B2'; }
+      else if(delta <= -0.5){ arrowCls='dn'; arrowChar='\u25BC'; }
+      else { arrowCls='eq'; arrowChar='\u25CF'; }
+      const sign = delta>=0 ? '+'+delta.toFixed(1) : delta.toFixed(1);
+      th += '<tr><td class="sub-c"><span class="trend-dot" style="background:'+s.color+'"></span>'+s.code+'</td>';
+      s.values.forEach((v, j)=>{
+        let cellCls = '';
+        if(j>0){
+          const mom = v - s.values[j-1];
+          if(mom >= 1.5) cellCls = ' class="up-cell"';
+          else if(mom <= -1.5) cellCls = ' class="dn-cell"';
+        }
+        th += '<td'+cellCls+'>'+v.toFixed(1)+'</td>';
+      });
+      th += '<td class="trend-cum">'+cumAvg.toFixed(1)+'</td>';
+      th += '<td><span class="trend-arrow-cell '+arrowCls+'">'+arrowChar+' '+sign+'</span></td></tr>';
+    });
+    /* Footer AVG row */
+    th += '</tbody><tfoot><tr><td class="sub-c">AVG</td>';
+    for(let j=0;j<6;j++){
+      const sum = trendSeries.reduce((a,s)=>a+s.values[j],0);
+      th += '<td>'+(sum/trendSeries.length).toFixed(1)+'</td>';
+    }
+    const grandCum = trendSeries.reduce((a,s)=>a + s.values.reduce((x,y)=>x+y,0)/s.values.length, 0) / trendSeries.length;
+    th += '<td class="trend-cum">'+grandCum.toFixed(1)+'</td><td>\u2014</td></tr></tfoot>';
+    tbl.innerHTML = th;
+  }
+
+  renderActiveFilterChips();
+}
+function refreshMain(){ renderMain(); }
+
+let gaugeChart, radarChart, comboChart, subcatChart, hitmissChart, deductionChart;
+function regionDisplay(r){ return ({English:'English Speaking',EUROPE:'Europe',LATAM:'LATAM',MEA:'MEA',CIS:'CIS',ASIA:'Asia',India:'India'})[r]||r; }
+function renderDetail(){
+  const sub = SUBSIDIARIES.find(s=>s.code===currentDetailSub);
+  document.getElementById('d-sub-name').innerHTML = sub.code+' &middot; '+sub.name+' &middot; '+regionDisplay(sub.region);
+  document.getElementById('gauge-num').textContent = sub.score.toFixed(1);
+  document.getElementById('d-eval-cnt').textContent = sub.count.toLocaleString();
+  if(gaugeChart) gaugeChart.destroy();
+  gaugeChart = new Chart(document.getElementById('gaugeChart'),{type:'doughnut',data:{datasets:[{data:[sub.score,100-sub.score],backgroundColor:[sub.score>=85?'#FD312E':'#A50034','#F0F0F2'],borderWidth:0,circumference:180,rotation:270}]},options:{responsive:true,maintainAspectRatio:false,cutout:'72%',plugins:{legend:{display:false},tooltip:{enabled:false}}}});
+  if(radarChart) radarChart.destroy();
+  const row = HEATMAP_DATA.find(h=>h.code===sub.code);
+  radarChart = new Chart(document.getElementById('radarChart'),{type:'radar',data:{labels:CATEGORIES,datasets:[{label:sub.code,data:row.scores.map(s=>+s.toFixed(1)),borderColor:'#FD312E',backgroundColor:'#FD312E33',borderWidth:2,pointRadius:4},{label:'Global Avg',data:[85.2,86.1,84.5,88.3],borderColor:'#6B7280',backgroundColor:'#6B728022',borderWidth:1.5,borderDash:[4,4],pointRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11}}}},scales:{r:{min:60,max:100,ticks:{stepSize:10}}}}});
+  if(comboChart) comboChart.destroy();
+  const weeks=['W1','W2','W3','W4'], seed=sub.code.charCodeAt(0)+sub.code.charCodeAt(1);
+  const sc = weeks.map((w,i)=>+(sub.score-2+((seed+i*7)%40)/10).toFixed(1));
+  const vl = weeks.map((w,i)=>Math.floor(sub.count/4+((seed+i*13)%60)-30));
+  comboChart = new Chart(document.getElementById('comboChart'),{data:{labels:weeks,datasets:[{type:'bar',label:'Evaluations',data:vl,backgroundColor:'#FECACA',borderRadius:4,yAxisID:'y1',barThickness:40},{type:'line',label:'QA Score',data:sc,borderColor:'#FD312E',borderWidth:3,pointRadius:5,tension:0.3,yAxisID:'y'}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'top',align:'end'}},scales:{y:{position:'left',min:70,max:100},y1:{position:'right',grid:{display:false}}}}});
+  if(subcatChart) subcatChart.destroy();
+  const cats={}; EVAL_ITEMS.forEach(it=>{if(!cats[it.cat])cats[it.cat]={s:0,c:0}; cats[it.cat].s+=it.rate; cats[it.cat].c+=1;});
+  const cn = Object.keys(cats);
+  subcatChart = new Chart(document.getElementById('subcatChart'),{type:'bar',data:{labels:cn.map(c=>c+' ('+cats[c].c+' items)'),datasets:[{label:'Achievement %',data:cn.map(c=>+(cats[c].s/cats[c].c).toFixed(1)),backgroundColor:['#A50034','#FD312E','#F59E0B','#10B981'],borderRadius:6,barThickness:36}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{min:60,max:100}}}});
+  if(hitmissChart) hitmissChart.destroy();
+  const ci = EVAL_ITEMS.filter(i=>i.critical);
+  hitmissChart = new Chart(document.getElementById('hitmissChart'),{type:'bar',data:{labels:ci.map(i=>i.name),datasets:[{label:'Fail Rate (%)',data:ci.map(i=>+(100-i.rate).toFixed(1)),backgroundColor:ci.map(i=>(100-i.rate)>5?'#A50034':'#FD312E'),borderRadius:6,barThickness:30}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,max:15},x:{ticks:{font:{size:10},maxRotation:35,minRotation:25}}}}});
+  document.getElementById('topTable').innerHTML = '<thead><tr><th>Rank</th><th>Agent</th><th>Team</th><th>Score</th><th>Calls</th></tr></thead><tbody>'+TOP_PERFORMERS.map((p,i)=>'<tr style="cursor:pointer" onclick="showAgentRawData(\''+p.name+'\')"><td><span class="rank">'+(i+1)+'</span></td><td><strong>'+p.name+'</strong></td><td>'+p.team+'</td><td><span class="score-pill high">'+p.score+'</span></td><td>'+p.calls+'</td></tr>').join('')+'</tbody>';
+  document.getElementById('botTable').innerHTML = '<thead><tr><th>Rank</th><th>Agent</th><th>Team</th><th>Score</th><th>Focus Area</th></tr></thead><tbody>'+BOTTOM_PERFORMERS.map((p,i)=>'<tr style="cursor:pointer" onclick="showAgentRawData(\''+p.name+'\')"><td><span class="rank bottom">'+(i+1)+'</span></td><td><strong>'+p.name+'</strong></td><td>'+p.team+'</td><td><span class="score-pill low">'+p.score+'</span></td><td><span class="tag critical">'+p.focus+'</span></td></tr>').join('')+'</tbody>';
+  if(deductionChart) deductionChart.destroy();
+  const sd = [...EVAL_ITEMS].sort((a,b)=>a.rate-b.rate).slice(0,10);
+  deductionChart = new Chart(document.getElementById('deductionChart'),{type:'bar',data:{labels:sd.map(i=>i.name),datasets:[{label:'Deduction',data:sd.map(i=>+(100-i.rate).toFixed(1)),backgroundColor:sd.map(i=>i.critical?'#A50034':'#FD312E'),borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true},x:{ticks:{font:{size:10},maxRotation:30,minRotation:20}}}}});
+  document.getElementById('agent-raw-wrap').style.display = 'none';
+}
+function refreshDetail(){ currentDetailSub = document.getElementById('d-sub').value; renderDetail(); }
+
+function showAgentRawData(name){
+  const queues = ['IB - [SUPORTE - HE] OUTROS','OBS - STATUS','IB - [SUPORTE - REFRIGERADOR]','IB - ASC HA','IB - ASC TV > 40','IB - [SUPORTE - LAVADORA] OUTROS'];
+  const subs = ['LGEUS','LGEUK','LGEDG','LGEFS','LGEBR','LGEAR','LGEIS','LGEES'];
+  const times = ['09:12','10:34','11:48','13:05','14:22','15:40','16:18','17:02','17:37','18:14'];
+  const dates = ['18/06/2026','19/06/2026','20/06/2026','21/06/2026','22/06/2026','23/06/2026','24/06/2026','25/06/2026'];
+  const statuses = ['Analyzed','Completed','Analyzed','Pending','Analyzed','Analyzed','Completed','Analyzed'];
+  const CRITICAL_ITEMS_POOL = ['Greeting / Presentation','Pause Management','Clarity and Correctness','Critical Procedure'];
+  function hex(n){const c='0123456789abcdef';let r='';for(let i=0;i<n;i++)r+=c[Math.floor(Math.random()*16)];return r;}
+  function uuid(){return hex(8)+'-'+hex(4)+'-'+hex(4)+'-'+hex(4)+'-'+hex(12);}
+  const seed = name.charCodeAt(0) + (name.charCodeAt(1)||0);
+  const n = 8 + (seed%4);
+  const rows = [];
+  for(let i=0;i<n;i++){
+    const status = statuses[i % statuses.length];
+    const score = status==='Pending' ? null : 50 + ((seed+i*7)%45);
+    const isCritical = score!==null && score<60;
+    let issues = [];
+    if(isCritical){
+      const numIssues = score<55 ? 3 : (score<58 ? 2 : 1);
+      const startIdx = (seed+i) % CRITICAL_ITEMS_POOL.length;
+      for(let k=0;k<numIssues;k++){ issues.push(CRITICAL_ITEMS_POOL[(startIdx+k) % CRITICAL_ITEMS_POOL.length]); }
+    }
+    rows.push({id:uuid(), date:dates[i%dates.length], time:times[i%times.length], agent:name, subsidiary:subs[i%subs.length], score:score, status:status, queue:queues[i%queues.length], critical:isCritical, criticalIssues:issues});
+  }
+  window._agentRows = rows;
+  document.getElementById('agent-raw-title').textContent = 'Calls handled by ' + name;
+  document.getElementById('agent-raw-count').textContent = rows.length;
+  let h = '<thead><tr><th>Action</th><th>ID</th><th>Date/Time</th><th>Agent</th><th>Subsidiary</th><th>AI Score</th><th>Status</th><th>Queue</th><th style="text-align:center">Critical Error</th></tr></thead><tbody>';
+  rows.forEach((r,i)=>{
+    const sh = r.score===null
+      ? '<div class="progress-wrap"><div class="progress-bar"><div class="progress-fill" style="width:0"></div></div><span class="progress-num" style="color:var(--text-sub)">N/A</span></div>'
+      : '<div class="progress-wrap"><div class="progress-bar"><div class="progress-fill" style="width:'+r.score+'%;background:'+(r.score>=80?'#10B981':(r.score>=60?'#F59E0B':'#EF4444'))+'"></div></div><span class="progress-num" style="color:'+(r.score>=80?'#065F46':(r.score>=60?'#92400E':'#991B1B'))+'">'+r.score+'</span></div>';
+    const scCls = r.status==='Pending'?'pending':(r.status==='Completed'?'completed':'analyzed');
+    const critTooltip = r.critical && r.criticalIssues && r.criticalIssues.length ? 'Failed Critical Items:&#10;' + r.criticalIssues.map(x=>'• '+x).join('&#10;') : '';
+    const critCell = r.critical
+      ? '<td class="raw-critical-cell has-error" title="'+critTooltip+'"><span class="raw-crit-badge error">&#9888; Critical Error</span></td>'
+      : '<td class="raw-critical-cell"><span class="raw-crit-dash">&mdash;</span></td>';
+    h += '<tr onclick="openQAPage(window._agentRows['+i+'])"><td><button class="raw-action-btn" onclick="event.stopPropagation(); openQAPage(window._agentRows['+i+'])" title="View detail">&#128065;</button></td><td><span class="raw-id">'+r.id+'</span></td><td><div class="raw-datetime">'+r.date+'<span>'+r.time+'</span></div></td><td><strong>'+r.agent+'</strong></td><td>'+r.subsidiary+'</td><td>'+sh+'</td><td><span class="status-pill '+scCls+'">'+r.status+'</span></td><td><span class="queue-cell">'+r.queue+'</span></td>'+critCell+'</tr>';
+  });
+  h += '</tbody>';
+  document.getElementById('agentRawTable').innerHTML = h;
+  document.getElementById('agent-raw-wrap').style.display = 'block';
+  setTimeout(()=>{document.getElementById('agent-raw-wrap').scrollIntoView({behavior:'smooth',block:'start'});}, 100);
+}
+function closeAgentRawData(){ document.getElementById('agent-raw-wrap').style.display = 'none'; }
+function downloadAgentRawCSV(){
+  const rows = window._agentRows || [];
+  if(rows.length === 0){ alert('No data to download'); return; }
+  const headers = ['ID','Date','Time','Agent','Subsidiary','AI Score','Status','Queue'];
+  let csv = headers.join(',') + '\n';
+  rows.forEach(r=>{ csv += [r.id,r.date,r.time,r.agent,r.subsidiary,r.score,r.status,'"'+r.queue+'"'].join(',') + '\n'; });
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'Agent_Calls_'+(rows[0].agent||'agent').replace(/\s/g,'_')+'_'+new Date().toISOString().slice(0,10)+'.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+const RAW_DATA = (function(){
+  const ag = ['N/A','N/A','N/A','N/A','JongHwan Jang','LEIHENN CHARLOT [KA]','N/A','HANS MULLER [KA]','MARJORIE HENRIQUE [KA]','EMMA WHITE [KA]','JongHwan Jang','PIERRE DUBOIS [KA]','MARJORIE HENRIQUE [KA]','LUCA ROSSI [KA]','ANA PEREIRA [KA]','N/A','HANS MULLER [KA]','LEIHENN CHARLOT [KA]','AGATA DAMIAO [KA]','EMMA WHITE [KA]'];
+  const sb = ['LGEBR','LGEBR','LGEBR','LGEUK','LGEUS','LGEBR','LGEBR','LGEDG','LGEBR','LGEUK','LGEUS','LGEFS','LGEBR','LGEIS','LGEBR','LGEBR','LGEDG','LGEAR','LGEBR','LGEUK'];
+  const qu = ['IB - [SUPORTE - HE] OUTROS','OBS - STATUS','OBS - STATUS','IB - [SUPORTE - HE] OUTROS','IB - [SUPORTE - HE] OUTROS','IB - [SUPORTE - REFRIGERADOR]','OBS - STATUS','IB - ASC HA','IB - ASC TV > 40','IB - [SUPORTE - LAVADORA] OUTROS','IB - [SUPORTE - HE] OUTROS','OBS - STATUS','IB - [SUPORTE - REFRIGERADOR]','IB - ASC HA','IB - [SUPORTE - HE] OUTROS','OBS - STATUS','IB - ASC TV > 40','IB - [SUPORTE - LAVADORA] OUTROS','IB - [SUPORTE - HE] OUTROS','IB - ASC HA'];
+  const tm = ['17:50','17:50','17:48','17:40','17:37','17:36','17:33','17:32','17:27','17:27','17:24','17:20','17:15','17:12','17:08','17:01','16:58','16:52','16:48','16:42'];
+  const sc = [null,null,null,null,56,64,null,59,70,74,82,76,68,91,53,null,72,88,79,65];
+  function hex(n){const c='0123456789abcdef';let r='';for(let i=0;i<n;i++)r+=c[Math.floor(Math.random()*16)];return r;}
+  function uuid(){return hex(8)+'-'+hex(4)+'-'+hex(4)+'-'+hex(4)+'-'+hex(12);}
+  const completedSet = new Set([4,10,18]);
+  const CRITICAL_ITEMS_POOL = ['Greeting / Presentation','Pause Management','Clarity and Correctness','Critical Procedure'];
+  return ag.map((a,i)=>{
+    let st;
+    if(completedSet.has(i)) st='Completed';
+    else if(sc[i]===null) st='Pending';
+    else st='Analyzed';
+    const isCritical = sc[i]!==null && sc[i]<60;
+    let issues = [];
+    if(isCritical){
+      const numIssues = sc[i]<55 ? 3 : (sc[i]<58 ? 2 : 1);
+      const startIdx = i % CRITICAL_ITEMS_POOL.length;
+      for(let k=0;k<numIssues;k++){ issues.push(CRITICAL_ITEMS_POOL[(startIdx+k) % CRITICAL_ITEMS_POOL.length]); }
+    }
+    return {id:uuid(), date:'24/06/2026', time:tm[i], agent:a, subsidiary:sb[i], score:sc[i], status:st, queue:qu[i], critical:isCritical, criticalIssues:issues};
+  });
+})();
+function renderRawDataTable(){
+  const tbl = document.getElementById('rawDataTable');
+  if(!tbl) return;
+  let h = '<thead><tr><th>Action</th><th>ID</th><th>Date/Time</th><th>Agent</th><th>Subsidiary</th><th>AI Score</th><th>Status</th><th>Queue</th><th style="text-align:center">Critical Error</th></tr></thead><tbody>';
+  RAW_DATA.forEach((r,i)=>{
+    const sh = r.score===null
+      ? '<div class="progress-wrap"><div class="progress-bar"><div class="progress-fill" style="width:0"></div></div><span class="progress-num" style="color:var(--text-sub)">N/A</span></div>'
+      : '<div class="progress-wrap"><div class="progress-bar"><div class="progress-fill" style="width:'+r.score+'%;background:'+(r.score>=80?'#10B981':(r.score>=60?'#F59E0B':'#EF4444'))+'"></div></div><span class="progress-num" style="color:'+(r.score>=80?'#065F46':(r.score>=60?'#92400E':'#991B1B'))+'">'+r.score+'</span></div>';
+    const sc = r.status==='Pending'?'pending':(r.status==='Completed'?'completed':'analyzed');
+    const critTooltip = r.critical && r.criticalIssues && r.criticalIssues.length ? 'Failed Critical Items:&#10;' + r.criticalIssues.map(x=>'• '+x).join('&#10;') : '';
+    const critCell = r.critical ? '<td class="raw-critical-cell has-error" title="'+critTooltip+'"><span class="raw-crit-badge error">&#9888; Critical Error</span></td>' : '<td class="raw-critical-cell"><span class="raw-crit-dash">&mdash;</span></td>';
+    h += '<tr onclick="openQAPage(RAW_DATA['+i+'])"><td><button class="raw-action-btn" title="View detail" onclick="event.stopPropagation(); openQAPage(RAW_DATA['+i+'])">&#128065;</button></td><td><span class="raw-id">'+r.id+'</span></td><td><div class="raw-datetime">'+r.date+'<span>'+r.time+'</span></div></td><td>'+r.agent+'</td><td><strong>'+r.subsidiary+'</strong></td><td>'+sh+'</td><td><span class="status-pill '+sc+'">'+r.status+'</span></td><td><span class="queue-cell">'+r.queue+'</span></td>'+critCell+'</tr>';
+  });
+  h += '</tbody>';
+  tbl.innerHTML = h;
+}
+function setRawChannel(ch, btn){ document.querySelectorAll('.toggle-btn').forEach(b=>b.classList.remove('active')); if(btn) btn.classList.add('active'); }
+function downloadRawDataCSV(){
+  const headers = ['ID','Date','Time','Agent','Subsidiary','AI Score','Status','Queue'];
+  const rows = RAW_DATA.map(r=>[r.id,r.date,r.time,r.agent,r.subsidiary,r.score===null?'N/A':r.score,r.status,r.queue]);
+  let csv = headers.join(',') + '\n';
+  rows.forEach(row=>{ csv += row.map(v=>{const s=String(v).replace(/"/g,'""'); return s.includes(',')||s.includes('"')?'"'+s+'"':s;}).join(',') + '\n'; });
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'LG_QA_RawData_'+new Date().toISOString().slice(0,10)+'.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+/* === v10 PATCH: QA_FORM_ITEMS with adjusted weights === */
+const QA_FORM_ITEMS = [
+  // ============ 1. Reliability (8 items) ============
+  {cat:'Reliability', item:'Greeting', evaluator:'AI', critical:true, desc:'Greet customer within 5 sec + name + department + intent', stt:['Good afternoon. Before we proceed, in case the call drops, which number can I call back?'], ai:'Maximum score: greeting + department + name + intent confirmation delivered correctly.', weight:7, levels:[7,3,2,0]},
+  {cat:'Reliability', item:'Closing', evaluator:'AI', critical:true, desc:'Closing greeting with real name + farewell expression', stt:['Thank you for contacting LG. Have a great day.'], ai:'Maximum score: closing script with name delivered fully.', weight:7, levels:[7,3,2,0]},
+  {cat:'Reliability', item:'Understanding the customer inquiry', evaluator:'AI', critical:false, desc:'Identify customer inquiry in one attempt without re-asking', stt:['So your washing machine is not draining water, correct?'], ai:'Customer issue rephrased and confirmed; understanding demonstrated.', weight:5, levels:[5,0]},
+  {cat:'Reliability', item:'Call Transfer Guide', evaluator:'AI', critical:false, desc:'Explain situation + available hours before transferring', stt:['(Transferred without situation explanation or available hours)'], ai:'Zero score: transfer made without proper context and timing guidance.', weight:0, levels:[5,0], warn:true},
+  {cat:'Reliability', item:'Required Information Verification (Model Name, S/N)', evaluator:'AI', critical:false, desc:'Verify Model Name and Serial Number from OneView or customer', stt:['Could you please share the model and serial number of your product?'], ai:'Partial score: Model Name confirmed, but Serial Number was not fully verified.', weight:3, levels:[5,3,0]},
+  {cat:'Reliability', item:'Accurate guidance', evaluator:'AI', critical:false, desc:'Provide accurate information; no repeated explanations', stt:['Please press the power button for 5 seconds to reset the device.'], ai:'Partial score: guidance was mostly accurate but customer asked clarifying questions twice.', weight:3, levels:[5,3,0]},
+  {cat:'Reliability', item:'Feasibility of Action Steps', evaluator:'AI', critical:false, desc:'Concise step-by-step actions; specific & executable', stt:['First press the Home button, then go to Settings icon at top right.'], ai:'Action steps are clear, specific, and executable by customer.', weight:5, levels:[5,3,0]},
+  {cat:'Reliability', item:'Confirmation of Resolution', evaluator:'AI', critical:false, desc:'Verify if proposed solution actually worked', stt:['Has the issue been fully resolved on your side?'], ai:'Resolution confirmed with customer prior to closing.', weight:3, levels:[3,0]},
+
+  // ============ 2. Friendliness (5 items) ============
+  {cat:'Friendliness', item:'Ending the call after closing', evaluator:'AI', critical:false, desc:'End call only after customer hangs up first', stt:['Thank you, have a wonderful day. Goodbye.'], ai:'Call ended after customer disconnected first.', weight:3, levels:[3,0]},
+  {cat:'Friendliness', item:'Active listening', evaluator:'AI', critical:false, desc:'Listen without interrupting customer', stt:['I understand. Yes, I see what you mean.'], ai:'Partial score: active listening shown overall, but one minor interruption detected.', weight:3, levels:[5,3,0]},
+  {cat:'Friendliness', item:'Pre-hold Acknowledgment', evaluator:'AI', critical:true, desc:'Pre/post-hold acknowledgment within 3 seconds', stt:['(Multiple holds without proper acknowledgment)'], ai:'Zero score: hold without pre-acknowledgment ("Could you please wait?").', weight:0, levels:[7,3,0], warn:true},
+  {cat:'Friendliness', item:'Correct expression', evaluator:'AI', critical:false, desc:'No jargon, abbreviations, or negative absolute terms', stt:['I apologize for the inconvenience this has caused.'], ai:'Partial score: mostly correct, but one abbreviation slipped through ("DB lookup").', weight:3, levels:[5,3,0]},
+  {cat:'Friendliness', item:'polite expression', evaluator:'AI', critical:true, desc:'No commanding/banmal/self-honorific/muttering expressions', stt:['Could you kindly hold on for a moment, please?'], ai:'Polite professional language used consistently throughout.', weight:7, levels:[7,3,0]},
+
+  // ============ 3. Proactiveness (3 items) ============
+  {cat:'Proactiveness', item:'Prompt response', evaluator:'AI', critical:false, desc:'Respond within 20 sec; no Dead Air over 10 sec', stt:['Let me check that for you right away.'], ai:'All responses within 20 sec; no Dead Air over 10 sec detected.', weight:5, levels:[5,3,0]},
+  {cat:'Proactiveness', item:'Empathy Expression', evaluator:'AI', critical:false, desc:'Customized empathy specific to customer situation', stt:['I completely understand how frustrating this delay must be for you.'], ai:'Partial score: empathy expressed but mostly generic ("sorry for the inconvenience"), not customized.', weight:3, levels:[5,3,0]},
+  {cat:'Proactiveness', item:'Checking for Additional Inquiries', evaluator:'AI', critical:true, desc:'Check for additional inquiries + NPS survey notice', stt:['Is there anything else I can help you with? You will receive an NPS survey shortly.'], ai:'Additional inquiry check + NPS notice delivered before closing.', weight:6, levels:[6,0]},
+
+  // ============ 4. Counseling Skills (4 items) ============
+  {cat:'Counseling Skills', item:'Pronunciation', evaluator:'Human', critical:false, desc:'Clear pronunciation; no slurring, stuttering, or mumbling', stt:['(Audio review required)'], ai:'Human review needed: pronunciation clarity assessment.', weight:3, levels:[3,1,0]},
+  {cat:'Counseling Skills', item:'Intonation', evaluator:'Human', critical:false, desc:'Appropriate tone variation; no negative tonal shifts', stt:['(Audio review required)'], ai:'Human review needed: tonal variation and emotional cue assessment.', weight:3, levels:[3,1,0]},
+  {cat:'Counseling Skills', item:'Pace', evaluator:'AI', critical:false, desc:'Match customer speech pace', stt:['(Speech rate analysis: 145 WPM matches customer)'], ai:'Speech pace appropriately matched to customer.', weight:3, levels:[3,2,0]},
+  {cat:'Counseling Skills', item:'Verbal Habits', evaluator:'AI', critical:false, desc:'No filler/habit words (uh, um, well, by the way)', stt:['(Filler word count: 3 instances)'], ai:'Low filler word frequency detected.', weight:3, levels:[3,1,0]},
+
+  // ============ 5. Physical Environment (2 items) ============
+  {cat:'Physical Environment', item:'Background Noise', evaluator:'Human', critical:false, desc:'No disruptive noise (typing, surrounding calls)', stt:['(Audio review required)'], ai:'Human review needed: background noise assessment.', weight:3, levels:[3,2,0]},
+  {cat:'Physical Environment', item:'After-Call Work (ACW) Management', evaluator:'Human', critical:false, desc:'Accurate Call Code + summary + ACW within 15 sec', stt:['(ACW incomplete: case notes missing)'], ai:'Zero score: ACW management did not meet standards.', weight:0, levels:[3,2,0], warn:true}
+];
+const QA_GSFS_QUESTIONS = [
+  {num:1, q:'Would you recommend our consultation service to your friends and family?', type:'rating10'},
+  {num:2, q:'Why did you choose the above score?', type:'check', opts:['Answer Desc','The agents problem-solving skills','The agents attitude','The products functions and features','Inconvenience in repair or delivery/Installation','Others','The process of connecting to the agent and waiting times','Cost and policy']},
+  {num:3, q:'It would be a great help if you could tell us in detail why you chose the answer(s) above.', type:'na'},
+  {num:4, q:'Was your inquiry resolved during the counseling service?', type:'check', opts:['Yes','No']},
+  {num:5, q:'How satisfied are you with the process of connecting to the LG Electronics call center agent?', type:'check', opts:['Very dissatisfied','Dissatisfied','Normal','Satisfied','Very satisfied']},
+  {num:6, q:'Why are you dissatisfied with the process of connecting to the agent?', type:'check', opts:['It takes a long time to connect','Others','The connection process is difficult and inconvenient']},
+  {num:7, q:'It would be a great help if you could tell us in detail why you chose the answer(s) above.', type:'na'},
+  {num:8, q:'How satisfied are you with your agent?', type:'check', opts:['Very dissatisfied','Dissatisfied','Normal','Satisfied','Very satisfied']},
+  {num:9, q:'Why are you (dis)satisfied with your agent? Please select all answers.', type:'check', opts:['The agents knowledge about the product','The agents attitude (voice and empathy)','Others','The agents knowledge about the issue','Quick service']},
+  {num:10, q:'It would be a great help if you could tell us in detail why you chose the answer(s) above.', type:'na'},
+  {num:11, q:'Is there anything LG Electronics Customer Service can improve to provide you with a more pleasant experience?', type:'check', opts:['Nothing','The process of connecting to the agent and waiting times','The products functions and features','The agents attitude','The agents problem-solving skills','Cost and policy']}
+];
+
+function qaTab(name, btn){
+  document.querySelectorAll('.qa-tab').forEach(t=>t.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  document.querySelectorAll('.qa-tab-panel').forEach(p=>p.classList.remove('active'));
+  const panel = document.getElementById('qa-panel-'+name);
+  if(panel) panel.classList.add('active');
+}
+function openQAPage(row){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-qa').classList.add('active');
+  document.getElementById('breadcrumb').innerHTML = '<span>&#127968;</span> <a onclick="goPage(\'main\')">Global Overview</a> <span>&rsaquo;</span> <strong>QA Detail</strong>';
+  if(row){
+    document.getElementById('qa-agent').textContent = row.agent && row.agent!=='N/A' ? row.agent : 'JongHwan Jang';
+    document.getElementById('qa-datetime').textContent = row.date+' '+row.time;
+    document.getElementById('qa-conv-id').textContent = row.id;
+    document.getElementById('qa-queue').textContent = row.queue;
+    const sc = row.score===null ? 64 : row.score;
+    document.getElementById('qa-score-num').innerHTML = sc+'<small>/100</small>';
+    const c = document.querySelector('.qa-score-circle');
+    const col = sc>=80?'#10B981':(sc>=60?'#F59E0B':'#EF4444');
+    c.style.background = 'conic-gradient('+col+' 0% '+sc+'%, #F1F1F2 '+sc+'% 100%)';
+    c.querySelector('.qa-score-inner').style.color = col;
+  }
+  qaRenderForm();
+  qaRenderGSFS();
+  qaTab('summary', document.querySelector('.qa-tab[data-tab="summary"]'));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* === v10 PATCH: wCls logic ===
+   Priority: warn (red, Pause Mgmt UI unchanged) > med (yellow when level===MED && weight===medV) > default
+*/
+function qaRenderForm(){
+  const tbl = document.getElementById('qaFormTable');
+  if(!tbl) return;
+  const catClassMap = {
+    'Reliability':'reliability',
+    'Friendliness':'friendliness',
+    'Proactiveness':'proactiveness',
+    'Counseling Skills':'counseling',
+    'Physical Environment':'physical'
+  };
+  const catLabelMap = {
+    'Reliability':'RELIABILITY',
+    'Friendliness':'FRIENDLINESS',
+    'Proactiveness':'PROACTIVENESS',
+    'Counseling Skills':'COUNSELING SKILLS',
+    'Physical Environment':'PHYSICAL ENVIRONMENT'
+  };
+  let h = '<thead><tr>'
+        + '<th style="width:36px;text-align:center">#</th>'
+        + '<th class="col-item">Subcategory</th>'
+        + '<th style="text-align:center;width:90px">Evaluator</th>'
+        + '<th style="text-align:center;width:100px">Critical</th>'
+        + '<th class="col-stt">Real STT</th>'
+        + '<th style="text-align:center;width:60px">Audio</th>'
+        + '<th>AI Comment</th>'
+        + '<th class="col-glms">GLMS Link</th>'
+        + '<th style="text-align:center;width:70px">Weight</th>'
+        + '<th style="width:90px">Level</th>'
+        + '<th style="text-align:center;width:90px">Human</th>'
+        + '</tr></thead><tbody>';
+  let lastCat = '';
+  let idx = 0;
+  QA_FORM_ITEMS.forEach(it=>{
+    if(it.cat !== lastCat){
+      const cls = catClassMap[it.cat] || '';
+      const label = catLabelMap[it.cat] || it.cat;
+      h += '<tr class="qa-group-header ' + cls + '"><td colspan="11">' + label + '</td></tr>';
+      lastCat = it.cat;
+    }
+    idx++;
+    const stt = (it.stt||[]).map(s=>'<div class="qa-stt-bullet">'+s+'</div>').join('');
+    const levels = it.levels || [it.weight, 0];
+    const maxScore = levels[0];
+    const minScore = levels[levels.length-1];
+    let wCls = '';
+    if(it.weight === maxScore) wCls = 'max';
+    else if(it.weight === minScore) wCls = 'min';
+    else wCls = 'med';
+    if(it.warn) wCls += ' warn';
+    let levelBadges = '';
+    levels.forEach((lvl, li) => {
+      let bCls, bLabel;
+      if(li === 0){ bCls = 'max'; bLabel = 'MAX'; }
+      else if(li === levels.length - 1){ bCls = 'min'; bLabel = 'MIN'; }
+      else { bCls = 'med'; bLabel = 'MED'; }
+      const isActive = (it.weight === lvl) ? 'active' : '';
+      levelBadges += '<span class="qa-level-badge ' + bCls + ' ' + isActive + '">' + bLabel + ' <span>' + lvl + '</span></span>';
+    });
+    const courseId = GLMS_ITEM_MAP[it.item];
+    const safeItem = it.item.replace(/'/g, "\\'");
+    const glmsCell = courseId
+      ? '<button class="glms-link-btn" onclick="openGLMSPage(\''+courseId+'\',\''+safeItem+'\')" title="Open related training in GLMS">&#128218; View Training</button>'
+      : '<span class="glms-no-link">&mdash; No course &mdash;</span>';
+    const audioCell = '<td style="text-align:center"><button class="qa-audio-btn" onclick="qaPlayAudio(this,\''+safeItem+'\')" title="Play voice"><span class="audio-icon">&#127911;</span></button></td>';
+    const critCell = it.critical
+      ? '<td class="qa-critical-cell"><span class="qa-critical-badge error">&#9888; Critical</span></td>'
+      : '<td class="qa-critical-cell"><span class="qa-critical-badge ok">Non-Critical</span></td>';
+    const evalClass = (it.evaluator || 'AI').toLowerCase();
+    const evalCell = '<td style="text-align:center"><span class="qa-eval-badge '+evalClass+'">'+(it.evaluator||'AI')+'</span></td>';
+    h += '<tr>'
+      + '<td style="text-align:center;color:#9CA3AF;font-size:11px;font-weight:600">' + idx + '</td>'
+      + '<td class="col-item"><div class="item-name">'+it.item+'</div><div class="item-desc">'+(it.desc||'')+'</div></td>'
+      + evalCell
+      + critCell
+      + '<td class="col-stt">'+stt+'</td>'
+      + audioCell
+      + '<td style="font-size:12px">'+(it.ai||'')+'</td>'
+      + '<td class="col-glms">'+glmsCell+'</td>'
+      + '<td style="text-align:center"><div class="qa-weight-circle '+wCls+'">'+it.weight+'</div></td>'
+      + '<td><div class="qa-level-badges">' + levelBadges + '</div></td>'
+      + '<td style="text-align:center"><div class="qa-human-btns"><button class="qa-thumb-btn" title="Agree">&#128077;</button><button class="qa-thumb-btn" title="Disagree">&#128078;</button></div></td>'
+      + '</tr>';
+  });
+  h += '</tbody>';
+  tbl.innerHTML = h;
+}
+function qaPlayAudio(btn, itemName){
+  const isPlaying = btn.classList.contains('playing');
+  document.querySelectorAll('.qa-audio-btn.playing').forEach(b=>{
+    b.classList.remove('playing');
+    const ic = b.querySelector('.audio-icon');
+    if(ic) ic.innerHTML = '&#127911;';
+  });
+  if(!isPlaying){
+    btn.classList.add('playing');
+    const ic = btn.querySelector('.audio-icon');
+    if(ic) ic.innerHTML = '&#9208;';
+    qaShowToast('▶ Playing voice: '+itemName);
+    setTimeout(()=>{
+      if(btn.classList.contains('playing')){
+        btn.classList.remove('playing');
+        const ic2 = btn.querySelector('.audio-icon');
+        if(ic2) ic2.innerHTML = '&#127911;';
+      }
+    }, 3000);
+  } else {
+    qaShowToast('⏸ Paused: '+itemName);
+  }
+}
+function qaRenderGSFS(){
+  const cont = document.getElementById('qa-gsfs-questions');
+  if(!cont) return;
+  let h = '';
+  QA_GSFS_QUESTIONS.forEach(q=>{
+    let body = '';
+    if(q.type==='rating10'){
+      body = '<div class="qa-q-options">';
+      for(let i=1;i<=10;i++){ body += '<button class="qa-q-option-btn" onclick="qaToggleRating(this)">'+i+'</button>'; }
+      body += '</div>';
+    } else if(q.type==='check'){
+      q.opts.forEach((o,i)=>{ body += '<label class="qa-q-checkbox"><input type="checkbox" data-q="'+q.num+'" data-opt="'+i+'"> '+o+'</label>'; });
+    } else if(q.type==='na'){
+      body = '<div class="qa-q-na">N/A</div>';
+    }
+    h += '<div class="qa-survey-q"><div class="qa-q-row"><div class="qa-q-num">'+q.num+'</div><div class="qa-q-content"><div class="qa-q-text">'+q.q+'</div>'+body+'</div></div></div>';
+  });
+  cont.innerHTML = h;
+}
+function qaToggleRating(btn){
+  const sibs = btn.parentElement.querySelectorAll('.qa-q-option-btn');
+  sibs.forEach(b=>{ b.style.background=''; b.style.color=''; b.style.borderColor=''; });
+  btn.style.background = 'var(--lg-active-red)'; btn.style.color = '#fff'; btn.style.borderColor = 'var(--lg-active-red)';
+}
+function qaSetRating(val, btn){
+  document.querySelectorAll('.qa-rating-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+}
+function qaShowToast(msg){
+  const t = document.getElementById('qa-toast');
+  if(!t) return;
+  t.textContent = msg || 'Saved successfully!';
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2200);
+}
+function qaSaveHumanQA(){
+  const data = {
+    evaluator: document.getElementById('qa-evaluator').value,
+    date: document.getElementById('qa-eval-date').value,
+    rating: (document.querySelector('.qa-rating-btn.active')||{}).dataset && document.querySelector('.qa-rating-btn.active').dataset.r,
+    overall: document.getElementById('qa-overall').value,
+    disagree: document.getElementById('qa-disagree').value,
+  };
+  console.log('Saved Human QA:', data);
+  const p = document.getElementById('qa-human-status');
+  p.textContent = 'Evaluated'; p.className = 'qa-pill promotor';
+  qaShowToast('Human QA evaluation saved!');
+}
+
+function qaSaveObjection(){
+  const data = {
+    consultant: document.getElementById('qa-consultant').value,
+    date: document.getElementById('qa-obj-date').value,
+    item: document.getElementById('qa-obj-item').value,
+    reason: document.getElementById('qa-obj-reason').value,
+    evidence: document.getElementById('qa-obj-evidence').value,
+    supervisor: document.getElementById('qa-supervisor').value,
+    reviewDate: document.getElementById('qa-review-date').value,
+    reviewResult: document.getElementById('qa-review-result').value,
+    reviewComment: document.getElementById('qa-review-comment').value,
+    reviewAdjust: document.getElementById('qa-review-adjust').value
+  };
+  console.log('Saved Objection (Draft):', data);
+  const p = document.getElementById('qa-review-status');
+  if(p){ p.textContent = 'Reviewing'; p.className = 'qa-pill analyzed'; }
+  qaShowToast('Objection / review feedback saved');
+}
+function qaCompleteObjection(){
+  const data = {
+    consultant: document.getElementById('qa-consultant').value,
+    item: document.getElementById('qa-obj-item').value,
+    reviewResult: document.getElementById('qa-review-result').value,
+    reviewComment: document.getElementById('qa-review-comment').value
+  };
+  console.log('Completed Objection:', data);
+  const p = document.getElementById('qa-objection-status');
+  if(p){ p.textContent = 'Completed'; p.className = 'qa-pill promotor'; }
+  const r = document.getElementById('qa-review-status');
+  if(r){ r.textContent = 'Review Completed'; r.className = 'qa-pill promotor'; }
+  qaShowToast('Objection review completed ✅');
+}
+
+function qaSaveGSFS(){
+  const checks = Array.from(document.querySelectorAll('#qa-gsfs-questions input[type=checkbox]:checked')).map(c=>({q:c.dataset.q, opt:c.dataset.opt}));
+  console.log('Saved GSFS:', checks);
+  qaShowToast('GSFS survey saved!');
+}
+
+const GLMS_STORAGE_KEY = 'lg_glms_progress_v10';
+let glmsProgress = (function(){
+  try{ const s = localStorage.getItem(GLMS_STORAGE_KEY); if(s) return JSON.parse(s); }catch(e){}
+  return {};
+})();
+function saveGLMSProgress(){
+  try{ localStorage.setItem(GLMS_STORAGE_KEY, JSON.stringify(glmsProgress)); }catch(e){}
+}
+function getCourseStatus(courseId){
+  const p = glmsProgress[courseId];
+  if(!p) return {status:'notstarted', pct:0, watched:0};
+  if(p.completed) return {status:'completed', pct:100, watched:p.watched||0};
+  if((p.watched||0) > 0) {
+    const c = GLMS_COURSES.find(x=>x.id===courseId);
+    const pct = c ? Math.min(99, Math.round((p.watched/c.totalSec)*100)) : 50;
+    return {status:'inprogress', pct:pct, watched:p.watched||0};
+  }
+  return {status:'notstarted', pct:0, watched:0};
+}
+
+let _glmsCat = 'all';
+let _glmsHighlightId = null;
+let _glmsModalCourse = null;
+let _glmsVideoInterval = null;
+let _glmsVideoPlaying = false;
+
+function openGLMSPage(courseId, itemName){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-glms').classList.add('active');
+  document.getElementById('breadcrumb').innerHTML =
+    '<span>&#127968;</span> <a onclick="goPage(\'main\')">Global Overview</a> <span>&rsaquo;</span> '+
+    '<a onclick="goBackToQA()">QA Detail</a> <span>&rsaquo;</span> <strong>GLMS Training</strong>';
+  _glmsHighlightId = courseId || null;
+  const banner = document.getElementById('glms-context-banner');
+  if(itemName){
+    banner.style.display = 'flex';
+    document.getElementById('glms-context-item').textContent = itemName;
+  } else {
+    banner.style.display = 'none';
+  }
+  _glmsCat = 'all';
+  document.querySelectorAll('.glms-cat-chip').forEach(c=>c.classList.toggle('active', c.dataset.cat==='all'));
+  document.getElementById('glms-search-input').value = '';
+  renderGLMSStats();
+  renderContinueLearning();
+  renderGLMS();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function goBackToQA(){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-qa').classList.add('active');
+  document.getElementById('breadcrumb').innerHTML = '<span>&#127968;</span> <a onclick="goPage(\'main\')">Global Overview</a> <span>&rsaquo;</span> <strong>QA Detail</strong>';
+  qaTab('quality', document.querySelector('.qa-tab[data-tab="quality"]'));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function setGLMSCat(cat, btn){
+  _glmsCat = cat;
+  document.querySelectorAll('.glms-cat-chip').forEach(c=>c.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderGLMS();
+}
+function filterGLMS(){ renderGLMS(); }
+
+function renderGLMSStats(){
+  let completed=0, inprog=0, todo=0;
+  GLMS_COURSES.forEach(c=>{
+    const st = getCourseStatus(c.id);
+    if(st.status==='completed') completed++;
+    else if(st.status==='inprogress') inprog++;
+    else todo++;
+  });
+  const total = GLMS_COURSES.length;
+  const overallPct = Math.round(((completed + inprog*0.5) / total) * 100);
+  const C = 2 * Math.PI * 26;
+  const dash = (overallPct/100) * C;
+  const ringHTML = '<div class="glms-overall-ring"><svg width="64" height="64"><circle cx="32" cy="32" r="26" stroke="#F1F1F2" stroke-width="6" fill="none"/><circle cx="32" cy="32" r="26" stroke="#A50034" stroke-width="6" fill="none" stroke-dasharray="'+dash+' '+C+'" stroke-linecap="round"/></svg><div class="pct">'+overallPct+'%</div></div>';
+  const html = ''
+    + '<div class="glms-stat">'+ringHTML+'<div class="info"><div class="lbl">Your Progress</div><div class="val">'+overallPct+'%</div><div class="sub">Overall completion</div></div></div>'
+    + '<div class="glms-stat done"><div class="ico">&#9989;</div><div class="info"><div class="lbl">Completed</div><div class="val">'+completed+'<span style="font-size:13px;color:var(--text-sub);font-weight:500"> / '+total+'</span></div><div class="sub">Courses finished</div></div></div>'
+    + '<div class="glms-stat prog"><div class="ico">&#9203;</div><div class="info"><div class="lbl">In Progress</div><div class="val">'+inprog+'</div><div class="sub">Continue learning</div></div></div>'
+    + '<div class="glms-stat todo"><div class="ico">&#128218;</div><div class="info"><div class="lbl">Not Started</div><div class="val">'+todo+'</div><div class="sub">Pending courses</div></div></div>';
+  document.getElementById('glms-stats').innerHTML = html;
+}
+
+function renderContinueLearning(){
+  const section = document.getElementById('glms-continue-section');
+  const grid = document.getElementById('glms-continue-grid');
+  const inProgCourses = GLMS_COURSES.filter(c=>getCourseStatus(c.id).status==='inprogress');
+  if(inProgCourses.length === 0){ section.style.display = 'none'; return; }
+  section.style.display = 'block';
+  document.getElementById('glms-continue-count').textContent = inProgCourses.length;
+  grid.innerHTML = inProgCourses.map(c=>buildCourseCard(c, false)).join('');
+}
+
+function buildCourseCard(c, allowHighlight){
+  const st = getCourseStatus(c.id);
+  const highlight = (allowHighlight && c.id===_glmsHighlightId)
+    ? 'box-shadow:0 0 0 3px var(--lg-active-red),0 6px 16px rgba(253,49,46,.25);'
+    : '';
+  const stars = '\u2605'.repeat(c.stars) + '\u2606'.repeat(5-c.stars);
+  let topBadge = '';
+  if(allowHighlight && c.id===_glmsHighlightId){
+    topBadge = '<span class="badge" style="background:var(--lg-active-red)">&#11088; Recommended</span>';
+  } else {
+    topBadge = '<span class="badge">'+c.level+'</span>';
+  }
+  let statusBadge = '';
+  if(st.status==='completed') statusBadge = '<span class="status-badge completed">&#10003; Completed</span>';
+  else if(st.status==='inprogress') statusBadge = '<span class="status-badge inprogress">&#9203; In Progress</span>';
+  const progressBar = st.pct>0 ? '<div class="glms-card-progress"><div class="glms-card-progress-fill" style="width:'+st.pct+'%"></div></div>' : '';
+  const usedIn = (GLMS_REVERSE_MAP[c.id]||[]).length;
+  const mappingText = usedIn>0
+    ? '<div class="glms-card-mapping">&#128203; Used in <strong>'+usedIn+'</strong> QA item'+(usedIn>1?'s':'')+'</div>'
+    : '';
+  return '<div class="glms-card" style="'+highlight+'" onclick="openGLMSModal(\''+c.id+'\')">'
+    + '<div class="glms-card-thumb '+c.thumb+'">'
+    + topBadge + statusBadge
+    + '<span style="font-size:48px">'+c.icon+'</span>'
+    + '<span class="duration">&#9201; '+c.dur+'</span>'
+    + progressBar
+    + '</div>'
+    + '<div class="glms-card-body">'
+    + '<div class="glms-card-cat">'+c.cat+'</div>'
+    + '<div class="glms-card-title">'+c.title+'</div>'
+    + mappingText
+    + '<div class="glms-card-meta">'
+    + '<span class="glms-card-stars">'+stars+'</span>'
+    + '<span>Course '+c.id+'</span>'
+    + '</div></div></div>';
+}
+
+function renderGLMS(){
+  const q = (document.getElementById('glms-search-input').value||'').toLowerCase();
+  let list = GLMS_COURSES.filter(c=>{
+    if(_glmsCat!=='all' && c.cat!==_glmsCat) return false;
+    if(q && !(c.title.toLowerCase().includes(q) || c.cat.toLowerCase().includes(q) || c.desc.toLowerCase().includes(q))) return false;
+    return true;
+  });
+  if(_glmsHighlightId){
+    list = [...list].sort((a,b)=> (a.id===_glmsHighlightId?-1:0) - (b.id===_glmsHighlightId?-1:0));
+  }
+  document.getElementById('glms-count').textContent = list.length;
+  document.getElementById('glms-section-label').textContent =
+    _glmsCat==='all' ? (_glmsHighlightId?'Recommended for You':'All Courses') : _glmsCat;
+  const grid = document.getElementById('glms-grid');
+  if(list.length===0){
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-sub)">No matching courses found.</div>';
+    return;
+  }
+  grid.innerHTML = list.map(c=>buildCourseCard(c, true)).join('');
+}
+
+function openGLMSModal(courseId){
+  const c = GLMS_COURSES.find(x=>x.id===courseId);
+  if(!c) return;
+  _glmsModalCourse = c;
+  document.getElementById('glms-modal-title').textContent = c.title;
+  document.getElementById('glms-modal-cat').textContent = c.cat;
+  document.getElementById('glms-modal-desc').textContent = c.desc;
+  document.getElementById('glms-modal-objectives').innerHTML = c.objectives.map(o=>'<li>'+o+'</li>').join('');
+  document.getElementById('glms-instructor-avt').textContent = c.instructor.initials;
+  document.getElementById('glms-instructor-name').textContent = c.instructor.name;
+  document.getElementById('glms-instructor-title').textContent = c.instructor.title;
+  document.getElementById('glms-video-title').textContent = c.icon + ' ' + c.title;
+  document.getElementById('glms-modal-total').textContent = c.dur;
+  const items = GLMS_REVERSE_MAP[c.id] || [];
+  const chipsHtml = items.length>0
+    ? items.map(i=>'<span class="glms-reverse-chip"><span class="ico">&#128204;</span>'+i+'</span>').join('')
+    : '<span style="font-size:11px;color:var(--text-sub);font-style:italic">No QA evaluation items linked to this course yet.</span>';
+  document.getElementById('glms-reverse-chips').innerHTML = chipsHtml;
+  updateGLMSModalProgress();
+  _glmsVideoPlaying = false;
+  if(_glmsVideoInterval){ clearInterval(_glmsVideoInterval); _glmsVideoInterval=null; }
+  document.getElementById('glms-play-btn').innerHTML = '&#9654;';
+  document.getElementById('glms-play-btn').classList.remove('playing');
+  document.getElementById('glms-ctrl-play').innerHTML = '&#9654;';
+  document.getElementById('glms-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeGLMSModal(){
+  if(_glmsVideoInterval){ clearInterval(_glmsVideoInterval); _glmsVideoInterval=null; }
+  _glmsVideoPlaying = false;
+  document.getElementById('glms-modal').classList.remove('open');
+  document.body.style.overflow = '';
+  renderGLMSStats();
+  renderContinueLearning();
+  renderGLMS();
+}
+
+function fmtTime(sec){
+  sec = Math.max(0, Math.floor(sec));
+  const m = Math.floor(sec/60), s = sec%60;
+  return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+}
+
+function updateGLMSModalProgress(){
+  if(!_glmsModalCourse) return;
+  const c = _glmsModalCourse;
+  const st = getCourseStatus(c.id);
+  const watched = st.watched;
+  const pct = st.pct;
+  document.getElementById('glms-modal-pct').textContent = pct + '%';
+  document.getElementById('glms-modal-pbar').style.width = pct + '%';
+  document.getElementById('glms-modal-watched').textContent = fmtTime(watched);
+  document.getElementById('glms-modal-total').textContent = fmtTime(c.totalSec);
+  document.getElementById('glms-video-time').textContent = fmtTime(watched) + ' / ' + fmtTime(c.totalSec);
+  document.getElementById('glms-video-progress-fill').style.width = pct + '%';
+  let statusText = 'Not Started';
+  if(st.status==='completed') statusText = '\u2713 Completed';
+  else if(st.status==='inprogress') statusText = '\u23F3 In Progress';
+  document.getElementById('glms-modal-status-text').textContent = statusText;
+  const btn = document.getElementById('glms-complete-btn');
+  if(st.status==='completed'){
+    btn.innerHTML = '&#10003; Completed';
+    btn.classList.add('done');
+    document.getElementById('glms-modal-footer-status').innerHTML = '&#127942; Course completed! Great job.';
+  } else {
+    btn.innerHTML = '&#10003; Mark as Complete';
+    btn.classList.remove('done');
+    document.getElementById('glms-modal-footer-status').innerHTML = '&#9201; Watch the video to track your progress automatically';
+  }
+}
+
+function toggleGLMSPlay(){
+  if(!_glmsModalCourse) return;
+  const c = _glmsModalCourse;
+  if(_glmsVideoPlaying){
+    _glmsVideoPlaying = false;
+    if(_glmsVideoInterval){ clearInterval(_glmsVideoInterval); _glmsVideoInterval=null; }
+    document.getElementById('glms-play-btn').innerHTML = '&#9654;';
+    document.getElementById('glms-play-btn').classList.remove('playing');
+    document.getElementById('glms-ctrl-play').innerHTML = '&#9654;';
+  } else {
+    _glmsVideoPlaying = true;
+    document.getElementById('glms-play-btn').innerHTML = '&#10074;&#10074;';
+    document.getElementById('glms-play-btn').classList.add('playing');
+    document.getElementById('glms-ctrl-play').innerHTML = '&#10074;&#10074;';
+    if(!glmsProgress[c.id]) glmsProgress[c.id] = {watched:0, completed:false};
+    _glmsVideoInterval = setInterval(()=>{
+      const p = glmsProgress[c.id];
+      p.watched = Math.min(c.totalSec, (p.watched||0) + 5);
+      if(p.watched >= c.totalSec){
+        p.completed = true;
+        clearInterval(_glmsVideoInterval); _glmsVideoInterval=null;
+        _glmsVideoPlaying = false;
+        document.getElementById('glms-play-btn').innerHTML = '&#9654;';
+        document.getElementById('glms-play-btn').classList.remove('playing');
+        document.getElementById('glms-ctrl-play').innerHTML = '&#9654;';
+        qaShowToast('\u2705 Course completed: ' + c.title);
+      }
+      saveGLMSProgress();
+      updateGLMSModalProgress();
+    }, 500);
+  }
+}
+
+function seekGLMSVideo(ev){
+  if(!_glmsModalCourse) return;
+  const c = _glmsModalCourse;
+  const bar = ev.currentTarget;
+  const rect = bar.getBoundingClientRect();
+  const pct = Math.max(0, Math.min(1, (ev.clientX - rect.left) / rect.width));
+  if(!glmsProgress[c.id]) glmsProgress[c.id] = {watched:0, completed:false};
+  glmsProgress[c.id].watched = Math.floor(pct * c.totalSec);
+  if(glmsProgress[c.id].watched >= c.totalSec) glmsProgress[c.id].completed = true;
+  saveGLMSProgress();
+  updateGLMSModalProgress();
+}
+
+function markGLMSComplete(){
+  if(!_glmsModalCourse) return;
+  const c = _glmsModalCourse;
+  if(!glmsProgress[c.id]) glmsProgress[c.id] = {watched:0, completed:false};
+  glmsProgress[c.id].completed = true;
+  glmsProgress[c.id].watched = c.totalSec;
+  saveGLMSProgress();
+  updateGLMSModalProgress();
+  qaShowToast('\u2705 Marked as complete: ' + c.title);
+  if(_glmsVideoInterval){ clearInterval(_glmsVideoInterval); _glmsVideoInterval=null; _glmsVideoPlaying=false; }
+}
+
+function resetGLMSProgress(){
+  if(!_glmsModalCourse) return;
+  const c = _glmsModalCourse;
+  if(!confirm('Reset progress for "'+c.title+'" ?')) return;
+  delete glmsProgress[c.id];
+  saveGLMSProgress();
+  if(_glmsVideoInterval){ clearInterval(_glmsVideoInterval); _glmsVideoInterval=null; _glmsVideoPlaying=false; }
+  document.getElementById('glms-play-btn').innerHTML = '&#9654;';
+  document.getElementById('glms-play-btn').classList.remove('playing');
+  document.getElementById('glms-ctrl-play').innerHTML = '&#9654;';
+  updateGLMSModalProgress();
+  qaShowToast('\u21BB Progress reset for ' + c.title);
+}
+
+/* ===== Init ===== */
+const subSelect = document.getElementById('d-sub');
+SUBSIDIARIES.forEach(s=>{ const o=document.createElement('option'); o.value=s.code; o.textContent=s.code+' \u00B7 '+s.name+' ('+s.region+')'; subSelect.appendChild(o); });
+
+buildSubsidiaryMenu();
+renderMain();
+renderRawDataTable();
+</script>
+<footer style="text-align:center;padding:36px 32px 44px;color:var(--text-sub);font-size:12px;letter-spacing:-0.01em;border-top:1px solid var(--border);margin-top:24px;background:var(--surface)"><div>&copy; 2026 LG Electronics Inc. &middot; Global QA Evaluation Dashboard &middot; v17 (QA Standard Form · 5 Categories · Mixed Weights)</div></footer>
+</body>
+</html>
