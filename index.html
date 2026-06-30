@@ -2026,6 +2026,24 @@ function showAgentRawData(input, options){
     }
     rows.push({id:uuid(), date:dates[i%dates.length], time:times[i%times.length], agent:agentName, subsidiary:subs[i%subs.length], score:score, status:status, queue:queues[i%queues.length], critical:isCritical, criticalIssues:issues});
   }
+  /* v32: ensure 1~4 random non-Pending rows show Critical Error */
+  const targetCritical = 1 + Math.floor(Math.random() * 4);
+  const eligible = rows.map((r, idx)=>idx).filter(idx => rows[idx].status !== 'Pending');
+  const currentCriticalCount = rows.filter(r=>r.critical).length;
+  const needed = Math.max(0, targetCritical - currentCriticalCount);
+  if(needed > 0){
+    const nonCritEligible = eligible.filter(idx => !rows[idx].critical);
+    for(let s=nonCritEligible.length-1; s>0; s--){ const j=Math.floor(Math.random()*(s+1)); const tmp=nonCritEligible[s]; nonCritEligible[s]=nonCritEligible[j]; nonCritEligible[j]=tmp; }
+    for(let k=0; k<Math.min(needed, nonCritEligible.length); k++){
+      const idx2 = nonCritEligible[k];
+      rows[idx2].critical = true;
+      const numIssuesR = 1 + Math.floor(Math.random()*3);
+      const startIdxR = Math.floor(Math.random()*CRITICAL_ITEMS_POOL.length);
+      const issuesNew = [];
+      for(let kk=0; kk<numIssuesR; kk++){ issuesNew.push(CRITICAL_ITEMS_POOL[(startIdxR+kk)%CRITICAL_ITEMS_POOL.length]); }
+      rows[idx2].criticalIssues = issuesNew;
+    }
+  }
   window._agentRows = rows;
   document.getElementById('agent-raw-title').textContent = title;
   document.getElementById('agent-raw-count').textContent = rows.length;
@@ -2046,11 +2064,11 @@ function showAgentRawData(input, options){
   document.getElementById('agent-raw-wrap').style.display = 'block';
   setTimeout(()=>{
     const el = document.getElementById('agent-raw-wrap');
-    const headerOffset = 80;
+    const headerOffset = 20;
     const elTop = el.getBoundingClientRect().top + window.pageYOffset - headerOffset;
     window.scrollTo({top: elTop, behavior: 'smooth'});
     resetAgentRawPagination();
-  }, 350);
+  }, 900);
 }
 function closeAgentRawData(){ document.getElementById('agent-raw-wrap').style.display = 'none'; }
 
@@ -2117,7 +2135,7 @@ function agentRawPage(delta){
 function scrollToDetailTop(){
   const el = document.getElementById('agent-raw-wrap');
   if(!el) return;
-  const headerOffset = 80;
+  const headerOffset = 20;
   const elTop = el.getBoundingClientRect().top + window.pageYOffset - headerOffset;
   window.scrollTo({top: elTop, behavior: 'smooth'});
 }
@@ -2392,20 +2410,48 @@ function qaPlayAudio(btn, itemName){
     qaShowToast('⏸ Paused: '+itemName);
   }
 }
+const GSFS_PRESELECT = {
+  1: { rating: 6 },
+  2: { checks: [1, 6] },
+  3: { text: 'The agent kept me on hold for over 10 minutes and was unable to solve my refrigerator cooling issue. I had to be transferred twice before getting any meaningful response. The initial diagnosis was incorrect.' },
+  4: { checks: [1] },
+  5: { checks: [1] },
+  6: { checks: [0, 2] },
+  7: { text: 'Waiting over 8 minutes in the IVR menu to reach a live agent is unacceptable. The menu options were also confusing and led me to the wrong department initially.' },
+  8: { checks: [1] },
+  9: { checks: [0, 3, 4] },
+  10: { text: 'The agent was polite but seemed to lack training on the LG refrigerator product line. They had to put me on hold multiple times to consult colleagues.' },
+  11: { checks: [1, 4] }
+};
 function qaRenderGSFS(){
   const cont = document.getElementById('qa-gsfs-questions');
   if(!cont) return;
   let h = '';
   QA_GSFS_QUESTIONS.forEach(q=>{
     let body = '';
+    const pre = GSFS_PRESELECT[q.num] || {};
     if(q.type==='rating10'){
       body = '<div class="qa-q-options">';
-      for(let i=1;i<=10;i++){ body += '<button class="qa-q-option-btn" onclick="qaToggleRating(this)">'+i+'</button>'; }
+      const preselect = pre.rating || null;
+      for(let i=1;i<=10;i++){
+        const isSel = (i===preselect);
+        const style = isSel ? ' style="background:var(--lg-active-red);color:#fff;border-color:var(--lg-active-red)"' : '';
+        body += '<button class="qa-q-option-btn"'+style+' onclick="qaToggleRating(this)">'+i+'</button>';
+      }
       body += '</div>';
     } else if(q.type==='check'){
-      q.opts.forEach((o,i)=>{ body += '<label class="qa-q-checkbox"><input type="checkbox" data-q="'+q.num+'" data-opt="'+i+'"> '+o+'</label>'; });
+      const preset = new Set(pre.checks || []);
+      q.opts.forEach((o,i)=>{
+        const checked = preset.has(i) ? ' checked' : '';
+        const cls = preset.has(i) ? ' style="background:#FFF1F0;border-color:#FECACA;color:#7F1D1D;font-weight:600"' : '';
+        body += '<label class="qa-q-checkbox"'+cls+'><input type="checkbox" data-q="'+q.num+'" data-opt="'+i+'"'+checked+'> '+o+'</label>';
+      });
     } else if(q.type==='na'){
-      body = '<div class="qa-q-na">N/A</div>';
+      if(pre.text){
+        body = '<div class="qa-q-na" style="text-align:left;background:#FFF1F0;border:1px solid #FECACA;color:#7F1D1D;padding:10px 14px;border-radius:6px;line-height:1.5;font-style:italic">&quot;'+pre.text+'&quot;</div>';
+      } else {
+        body = '<div class="qa-q-na">N/A</div>';
+      }
     }
     h += '<div class="qa-survey-q"><div class="qa-q-row"><div class="qa-q-num">'+q.num+'</div><div class="qa-q-content"><div class="qa-q-text">'+q.q+'</div>'+body+'</div></div></div>';
   });
