@@ -511,6 +511,15 @@ td{padding:11px 12px;border-bottom:1px solid var(--border)}
 .raw-filter-row .filter-group input,.raw-filter-row .filter-group select{padding:9px 11px;border:1px solid var(--border);border-radius:7px;font-size:12.5px;font-family:inherit;background:#fff;}
 .raw-filter-row .btn-apply{padding:10px 18px;background:var(--lg-active-red);color:#fff;border:none;border-radius:7px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px;}
 .raw-filter-row .btn-apply:hover{background:var(--lg-heritage-red);}
+
+/* === v28: Raw Data pagination === */
+.raw-pagination{display:flex;align-items:center;justify-content:center;gap:14px;padding:14px 20px;background:#FAFAFB;border-top:1px solid var(--border);}
+.raw-page-btn{padding:7px 16px;background:#fff;border:1px solid var(--border);border-radius:7px;font-size:12px;color:var(--text);cursor:pointer;font-family:inherit;font-weight:500;transition:all .15s;}
+.raw-page-btn:hover:not(:disabled){border-color:var(--lg-active-red);color:var(--lg-active-red);}
+.raw-page-btn:disabled{opacity:.4;cursor:not-allowed;}
+.raw-page-btn.primary{background:var(--lg-active-red);color:#fff;border-color:var(--lg-active-red);margin-left:auto;}
+.raw-page-btn.primary:hover{background:var(--lg-heritage-red);border-color:var(--lg-heritage-red);color:#fff;}
+.raw-page-info{font-size:12px;color:var(--text-sub);font-weight:600;min-width:100px;text-align:center;}
 </style>
 </head>
 <body>
@@ -836,6 +845,12 @@ td{padding:11px 12px;border-bottom:1px solid var(--border)}
         </div>
         <div class="raw-summary"><span><strong id="agent-raw-count">0</strong> conversations &middot; Filtered by agent</span><span id="agent-raw-period">Period: Jun 2026</span></div>
         <div class="raw-table-wrap"><table class="raw-table" id="agentRawTable"></table></div>
+        <div class="raw-pagination" id="agent-raw-pagination">
+          <button class="raw-page-btn" onclick="agentRawPage(-1)" id="ar-prev">&larr; Previous</button>
+          <span class="raw-page-info" id="ar-page-info">Page 1 of 1</span>
+          <button class="raw-page-btn" onclick="agentRawPage(1)" id="ar-next">Next &rarr;</button>
+          <button class="raw-page-btn primary" onclick="scrollToDetailTop()">&uarr; Back to Top</button>
+        </div>
       </div>
     </div>
   </main>
@@ -1951,7 +1966,7 @@ function applyDetailFilter(filter){
   txt.innerHTML = '<strong>Active Filter:</strong> ' + filter.label + ' &middot; Target Score: <strong>' + Number(filter.score).toFixed(1) + '</strong>';
   renderDetail();
   flashDetailCards();
-  setTimeout(()=>{banner.scrollIntoView({behavior:'smooth',block:'start'});}, 50);
+  /* scroll handled by showAgentRawData for smoother flow */
 }
 function clearDetailFilter(){
   _detailFilter = null;
@@ -2029,7 +2044,13 @@ function showAgentRawData(input, options){
   h += '</tbody>';
   document.getElementById('agentRawTable').innerHTML = h;
   document.getElementById('agent-raw-wrap').style.display = 'block';
-  setTimeout(()=>{document.getElementById('agent-raw-wrap').scrollIntoView({behavior:'smooth',block:'start'});}, 100);
+  setTimeout(()=>{
+    const el = document.getElementById('agent-raw-wrap');
+    const headerOffset = 80;
+    const elTop = el.getBoundingClientRect().top + window.pageYOffset - headerOffset;
+    window.scrollTo({top: elTop, behavior: 'smooth'});
+    resetAgentRawPagination();
+  }, 350);
 }
 function closeAgentRawData(){ document.getElementById('agent-raw-wrap').style.display = 'none'; }
 
@@ -2073,6 +2094,44 @@ function applyAgentRawFilters(){
   });
   h += '</tbody>';
   document.getElementById('agentRawTable').innerHTML = h;
+  resetAgentRawPagination();
+}
+
+
+let _agentRawPage = 1;
+const _agentRawPageSize = 10;
+function agentRawPage(delta){
+  const tbl = document.getElementById('agentRawTable');
+  if(!tbl) return;
+  const allRows = tbl.querySelectorAll('tbody tr');
+  const total = Math.max(1, Math.ceil(allRows.length / _agentRawPageSize));
+  _agentRawPage = Math.max(1, Math.min(total, _agentRawPage + delta));
+  document.getElementById('ar-page-info').textContent = 'Page ' + _agentRawPage + ' of ' + total;
+  const start = (_agentRawPage - 1) * _agentRawPageSize;
+  const end = start + _agentRawPageSize;
+  allRows.forEach((tr, i) => { tr.style.display = (i >= start && i < end) ? '' : 'none'; });
+  document.getElementById('ar-prev').disabled = _agentRawPage <= 1;
+  document.getElementById('ar-next').disabled = _agentRawPage >= total;
+  scrollToDetailTop();
+}
+function scrollToDetailTop(){
+  const el = document.getElementById('agent-raw-wrap');
+  if(!el) return;
+  const headerOffset = 80;
+  const elTop = el.getBoundingClientRect().top + window.pageYOffset - headerOffset;
+  window.scrollTo({top: elTop, behavior: 'smooth'});
+}
+function resetAgentRawPagination(){
+  _agentRawPage = 1;
+  const tbl = document.getElementById('agentRawTable');
+  if(!tbl) return;
+  const allRows = tbl.querySelectorAll('tbody tr');
+  const total = Math.max(1, Math.ceil(allRows.length / _agentRawPageSize));
+  const info = document.getElementById('ar-page-info');
+  if(info) info.textContent = 'Page 1 of ' + total;
+  const prev = document.getElementById('ar-prev'); if(prev) prev.disabled = true;
+  const next = document.getElementById('ar-next'); if(next) next.disabled = total <= 1;
+  allRows.forEach((tr, i) => { tr.style.display = i < _agentRawPageSize ? '' : 'none'; });
 }
 
 function downloadAgentRawCSV(){
