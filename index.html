@@ -127,7 +127,7 @@ main{padding:20px 32px 40px}
 .heatmap-legend-title{font-weight:700;color:var(--text-sub);text-transform:uppercase;letter-spacing:.5px;font-size:10px;margin-right:4px}
 .heatmap-legend-chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:12px;font-weight:700;font-size:11px;border:1px solid rgba(0,0,0,.06)}
 .heatmap-legend-chip .swatch{width:11px;height:11px;border-radius:50%;display:inline-block;box-shadow:0 0 0 1.5px rgba(255,255,255,.6),0 1px 2px rgba(0,0,0,.15)}
-.heatmap{display:grid;grid-template-columns:140px 74px 18px repeat(4,1fr);gap:3px;font-size:12px;align-items:stretch}
+.heatmap{display:grid;grid-template-columns:140px 74px 18px repeat(5,1fr);gap:3px;font-size:12px;align-items:stretch}
 .heatmap-header{font-weight:700;text-align:center;padding:11px 4px;color:var(--text-sub);font-size:10px;text-transform:uppercase;letter-spacing:.4px;position:sticky;top:0;background:#FAFAFB;z-index:5;border-bottom:1px solid var(--border)}
 .heatmap-header.total-h{color:var(--lg-heritage-red);font-weight:800;border-bottom:3px solid var(--lg-active-red);background:#FFF5F5;border-radius:5px 5px 0 0}
 .heatmap-spacer{background:transparent}
@@ -495,6 +495,22 @@ td{padding:11px 12px;border-bottom:1px solid var(--border)}
 .qa-weight-circle.min{background:#FEE2E2;color:#991B1B}
 .qa-weight-circle.warn{background:#FEE2E2;color:#991B1B}
 
+
+/* === v24: Cross-filter flash animation === */
+@keyframes detailFlash{0%{box-shadow:0 0 0 0 rgba(253,49,46,0);transform:scale(1);}30%{box-shadow:0 0 0 6px rgba(253,49,46,0.22);transform:scale(1.004);}100%{box-shadow:0 0 0 0 rgba(253,49,46,0);transform:scale(1);}}
+.detail-flash{animation:detailFlash .9s ease-out;}
+.detail-active-filter{margin:14px 24px 0;padding:11px 16px;background:linear-gradient(90deg,#FFF1F0,#FFE3E0);border:1px solid #FECACA;border-left:4px solid #FD312E;border-radius:8px;font-size:13px;color:#7F1D1D;font-weight:600;display:flex;align-items:center;gap:10px;animation:detailFlash .9s ease-out;}
+.detail-active-filter .daf-icon{font-size:16px;}
+.detail-active-filter .daf-reset{margin-left:auto;background:#FD312E;color:#fff;border:none;padding:6px 14px;border-radius:6px;cursor:pointer;font-weight:600;font-size:12px;font-family:inherit;}
+.detail-active-filter .daf-reset:hover{background:#A50034;}
+
+/* === v27: Agent Raw Data filter row === */
+.raw-filter-row{display:grid;grid-template-columns:repeat(7,1fr) auto;gap:12px;padding:16px 20px;background:#FAFAFB;border-bottom:1px solid var(--border);align-items:end;}
+.raw-filter-row .filter-group{display:flex;flex-direction:column;gap:6px;}
+.raw-filter-row .filter-group label{font-size:10px;font-weight:700;color:var(--text-sub);text-transform:uppercase;letter-spacing:.5px;}
+.raw-filter-row .filter-group input,.raw-filter-row .filter-group select{padding:9px 11px;border:1px solid var(--border);border-radius:7px;font-size:12.5px;font-family:inherit;background:#fff;}
+.raw-filter-row .btn-apply{padding:10px 18px;background:var(--lg-active-red);color:#fff;border:none;border-radius:7px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px;}
+.raw-filter-row .btn-apply:hover{background:var(--lg-heritage-red);}
 </style>
 </head>
 <body>
@@ -708,6 +724,11 @@ td{padding:11px 12px;border-bottom:1px solid var(--border)}
     </div>
   </div>
   <main>
+        <div id="detail-active-filter" class="detail-active-filter" style="display:none">
+      <span class="daf-icon">&#128269;</span>
+      <span id="daf-text">Active filter</span>
+      <button class="daf-reset" onclick="clearDetailFilter()">&#8634; Reset Filter</button>
+    </div>
     <div class="chart-grid" style="grid-template-columns:1fr 1.5fr 1.2fr">
       <div class="card gauge-card">
         <div class="card-title" style="align-self:flex-start">Avg Score</div>
@@ -726,14 +747,14 @@ td{padding:11px 12px;border-bottom:1px solid var(--border)}
         </div>
       </div>
       <div class="card">
-        <div class="card-title">Category Score (4 Pillars)</div>
-        <div class="card-subtitle">Reliability &middot; Friendliness &middot; Proactiveness &middot; Physical Env.</div>
+        <div class="card-title">Category Score (5 Pillars)</div>
+        <div class="card-subtitle">Reliability &middot; Friendliness &middot; Proactiveness &middot; Communication Skills &middot; Physical Environment</div>
         <div class="chart-wrap short"><canvas id="radarChart"></canvas></div>
       </div>
     </div>
     <div class="chart-grid col-2">
       <div class="card"><div class="card-title">Weekly Score Trend</div><div class="card-subtitle">Score line + Evaluation volume bar</div><div class="chart-wrap med"><canvas id="comboChart"></canvas></div></div>
-      <div class="card"><div class="card-title">Achievement Rate by Sub-Category</div><div class="card-subtitle">22 items aggregated</div><div class="chart-wrap med"><canvas id="subcatChart"></canvas></div></div>
+      <div class="card"><div class="card-title">Achievement Rate by Sub-Category</div><div class="card-subtitle">5 category groups aggregated</div><div class="chart-wrap med"><canvas id="subcatChart"></canvas></div></div>
     </div>
     <div class="chart-grid col-1">
       <div class="card"><div class="card-title">Hit-or-Miss Critical Items &middot; Fail Rate Tracking</div><div class="card-subtitle">8 critical items with 0-point fail risk</div><div class="chart-wrap med"><canvas id="hitmissChart"></canvas></div></div>
@@ -749,13 +770,69 @@ td{padding:11px 12px;border-bottom:1px solid var(--border)}
       <div class="raw-card">
         <div class="raw-header">
           <div class="raw-header-left">
-            <div class="raw-icon-circle">&#128203;</div>
-            <div><h3 id="agent-raw-title">Agent Call History</h3><p>Filtered to selected agent &middot; Click any row to view QA detail &rarr;</p></div>
+            <div class="raw-icon-circle">&#128172;</div>
+            <div><h3 id="agent-raw-title">Quality Analysis</h3><p>AI-powered conversation quality review</p></div>
           </div>
           <div class="raw-header-right">
+            <div class="toggle-group">
+              <button class="toggle-btn active" onclick="setAgentRawChannel('voice', this)">&#127908; Voice</button>
+              <button class="toggle-btn" onclick="setAgentRawChannel('chat', this)">&#128172; Chat</button>
+              <button class="toggle-btn" onclick="setAgentRawChannel('email', this)">&#128231; E-mail</button>
+              <button class="toggle-btn" onclick="setAgentRawChannel('chatbot', this)">&#129302; Chatbot</button>
+            </div>
+            <div class="chip-group">
+              <button class="chip-btn" onclick="setAgentRawDate('today', this)">&#128197; Today</button>
+              <button class="chip-btn" onclick="setAgentRawDate('7d', this)">&#128197; Last 7 days</button>
+              <button class="chip-btn active" onclick="setAgentRawDate('30d', this)">&#128197; Last 30 days</button>
+              <button class="chip-btn" onclick="setAgentRawDate('month', this)">&#128197; This month</button>
+            </div>
             <button class="btn-download" onclick="downloadAgentRawCSV()">&#11015; Download CSV</button>
             <button class="btn-download outline" onclick="closeAgentRawData()">&#10005; Close</button>
           </div>
+        </div>
+        <div class="raw-filter-row">
+          <div class="filter-group"><label>Date Range</label><input type="text" id="ar-date" value="18/06/2026 - 25/06/2026"></div>
+          <div class="filter-group"><label>Subsidiary</label>
+            <select id="ar-sub" onchange="applyAgentRawFilters()">
+              <option>&#127760; All Subsidiaries</option>
+              <option>LGEUS</option><option>LGEUK</option><option>LGEDG</option><option>LGEFS</option>
+              <option>LGEBR</option><option>LGEAR</option><option>LGEIS</option><option>LGEES</option>
+            </select>
+          </div>
+          <div class="filter-group"><label>Agent</label>
+            <select id="ar-agent" onchange="applyAgentRawFilters()">
+              <option>&#128100; All Agents</option>
+              <option>Maria Santos</option><option>James Cooper</option><option>Aisha Khan</option>
+              <option>Carlos Mendez</option><option>Linda Park</option><option>Robert Lee</option>
+              <option>Sofia Garcia</option><option>Michael Wong</option><option>Priya Patel</option>
+              <option>Daniel Kim</option>
+            </select>
+          </div>
+          <div class="filter-group"><label>Queue</label>
+            <select id="ar-queue" onchange="applyAgentRawFilters()">
+              <option>&#127911; All Queues</option>
+              <option>IB - [SUPORTE - HE] OUTROS</option>
+              <option>OBS - STATUS</option>
+              <option>IB - [SUPORTE - REFRIGERADOR]</option>
+              <option>IB - ASC HA</option>
+              <option>IB - ASC TV &gt; 40</option>
+              <option>IB - [SUPORTE - LAVADORA] OUTROS</option>
+            </select>
+          </div>
+          <div class="filter-group"><label>Score</label>
+            <select id="ar-score" onchange="applyAgentRawFilters()">
+              <option>&#127942; All</option>
+              <option>90+</option><option>80+</option><option>70+</option><option>60+</option><option>&lt;60</option>
+            </select>
+          </div>
+          <div class="filter-group"><label>NPS</label>
+            <select id="ar-nps" onchange="applyAgentRawFilters()">
+              <option>&#128200; All</option>
+              <option>Promoter</option><option>Passive</option><option>Detractor</option>
+            </select>
+          </div>
+          <div class="filter-group"><label>Conv. ID</label><input type="text" id="ar-convid" placeholder="Enter ID..." oninput="applyAgentRawFilters()"></div>
+          <button class="btn-apply" onclick="applyAgentRawFilters()">&#128269; Search</button>
         </div>
         <div class="raw-summary"><span><strong id="agent-raw-count">0</strong> conversations &middot; Filtered by agent</span><span id="agent-raw-period">Period: Jun 2026</span></div>
         <div class="raw-table-wrap"><table class="raw-table" id="agentRawTable"></table></div>
@@ -958,8 +1035,8 @@ td{padding:11px 12px;border-bottom:1px solid var(--border)}
           <div class="qa-form-field"><label>Score Adjustment / Coaching Guide</label><textarea id="qa-review-adjust" rows="5" placeholder="Enter score adjustments or coaching guidance..."></textarea></div>
         </div>
         <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:14px">
-          <button class="qa-save-btn" style="background:#fff;color:var(--lg-active-red);border:1px solid var(--lg-active-red);float:none;margin-top:0" onclick="qaSaveObjection()">💾 Save</button>
-          <button class="qa-save-btn" style="float:none;margin-top:0" onclick="qaCompleteObjection()">✅ Completed</button>
+          <button class="qa-save-btn" style="background:#fff;color:var(--lg-active-red);border:1px solid var(--lg-active-red);float:none;margin-top:0" onclick="qaSaveObjection()"> Save</button>
+          <button class="qa-save-btn" style="float:none;margin-top:0" onclick="qaCompleteObjection()"> Completed</button>
         </div>
         <div style="clear:both"></div>
       </div>
@@ -1144,16 +1221,11 @@ const SUBSIDIARIES = [
 const REGIONS = ['English','EUROPE','LATAM','MEA','CIS','ASIA','India'];
 const REGION_COLORS = {English:'#FD312E', EUROPE:'#A50034', LATAM:'#F59E0B', MEA:'#10B981', CIS:'#6366F1', ASIA:'#8B5CF6', India:'#EC4899'};
 const REGION_DISPLAY_NAME = {English:'ENGLISH', EUROPE:'EUROPE', LATAM:'LATAM', MEA:'MEA', CIS:'CIS', ASIA:'ASIA', India:'INDIA'};
-const CATEGORIES = ['Reliability','Friendliness','Proactiveness','Physical Env.'];
+const CATEGORIES = ['Reliability','Friendliness','Proactiveness','Communication Skills','Physical Environment'];
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun'];
 const HEATMAP_DATA = SUBSIDIARIES.map(s => {
   const base = s.score, seed = s.code.charCodeAt(0)+s.code.charCodeAt(1);
-  return {code:s.code, scores:[
-    Math.max(60, Math.min(100, base + ((seed%70)/10 - 3.5))),
-    Math.max(60, Math.min(100, base + ((seed%50)/10 - 2.5))),
-    Math.max(60, Math.min(100, base + ((seed%60)/10 - 3.0))),
-    Math.max(60, Math.min(100, base + ((seed%40)/10 - 2.0)))
-  ]};
+  return {code:s.code, scores:[Math.max(60, Math.min(100, base + ((seed%70)/10 - 3.5))),Math.max(60, Math.min(100, base + ((seed%50)/10 - 2.5))),Math.max(60, Math.min(100, base + ((seed%60)/10 - 3.0))),Math.max(60, Math.min(100, base + ((seed%45)/10 - 2.2))),Math.max(60, Math.min(100, base + ((seed%40)/10 - 2.0)))]};
 });
 
 /* === v10: Real-world monthly trend data per subsidiary (Jan..Jun) with cross-overs === */
@@ -1456,13 +1528,16 @@ function renderActiveFilterChips(){
 function clearChip(i){ window._chips[i].clear(); }
 
 let currentDetailSub = 'LGEAI';
-function goPage(page, code){
+function goPage(page, code, scoreOverride){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   if(page==='main'){
     document.getElementById('page-main').classList.add('active');
     document.getElementById('breadcrumb').innerHTML = '<span>&#127968;</span> <a onclick="goPage(\'main\')">Global Overview</a>';
   } else if(page==='detail'){
     if(code) currentDetailSub = code;
+    _detailFilter = null;
+    _overrideBaseScore = (typeof scoreOverride === 'number') ? scoreOverride : null;
+    const _daf = document.getElementById('detail-active-filter'); if(_daf) _daf.style.display = 'none';
     document.getElementById('page-detail').classList.add('active');
     const s = SUBSIDIARIES.find(x=>x.code===currentDetailSub);
     document.getElementById('breadcrumb').innerHTML = '<span>&#127968;</span> <a onclick="goPage(\'main\')">Global Overview</a> <span>&rsaquo;</span> <strong>'+s.code+' &middot; '+s.name+'</strong>';
@@ -1696,10 +1771,10 @@ function renderMain(){
         + '<span class="lbl-code">'+s.code+'</span>'
         + '<span class="lbl-name">'+s.name+'</span>'
         + '</div>';
-      h += '<div class="heatmap-cell total '+textContrastClass(total)+'" style="background:'+scoreColor(total)+'" onclick="goPage(\'detail\',\''+s.code+'\')" title="'+s.code+' ('+s.name+') Total: '+total.toFixed(1)+' / 100">'+total.toFixed(1)+'</div>';
+      h += '<div class="heatmap-cell total '+textContrastClass(total)+'" style="background:'+scoreColor(total)+'" onclick="goPage(\'detail\',\''+s.code+'\','+total+')" title="'+s.code+' ('+s.name+') Total: '+total.toFixed(1)+' / 100">'+total.toFixed(1)+'</div>';
       h += '<div class="heatmap-spacer"></div>';
       row.scores.forEach((sc,i)=>{
-        h += '<div class="heatmap-cell '+textContrastClass(sc)+'" style="background:'+scoreColor(sc)+'" onclick="goPage(\'detail\',\''+s.code+'\')" title="'+s.code+' ('+s.name+') '+CATEGORIES[i]+': '+sc.toFixed(1)+' / 100">'+sc.toFixed(1)+'</div>';
+        h += '<div class="heatmap-cell '+textContrastClass(sc)+'" style="background:'+scoreColor(sc)+'" onclick="goPage(\'detail\',\''+s.code+'\','+sc+')" title="'+s.code+' ('+s.name+') '+CATEGORIES[i]+': '+sc.toFixed(1)+' / 100">'+sc.toFixed(1)+'</div>';
       });
     });
   });
@@ -1821,35 +1896,89 @@ function regionDisplay(r){ return ({English:'English Speaking',EUROPE:'Europe',L
 function renderDetail(){
   const sub = SUBSIDIARIES.find(s=>s.code===currentDetailSub);
   document.getElementById('d-sub-name').innerHTML = sub.code+' &middot; '+sub.name+' &middot; '+regionDisplay(sub.region);
-  document.getElementById('gauge-num').textContent = sub.score.toFixed(1);
-  document.getElementById('d-eval-cnt').textContent = sub.count.toLocaleString();
-  if(gaugeChart) gaugeChart.destroy();
-  gaugeChart = new Chart(document.getElementById('gaugeChart'),{type:'doughnut',data:{datasets:[{data:[sub.score,100-sub.score],backgroundColor:[sub.score>=85?'#FD312E':'#A50034','#F0F0F2'],borderWidth:0,circumference:180,rotation:270}]},options:{responsive:true,maintainAspectRatio:false,cutout:'72%',plugins:{legend:{display:false},tooltip:{enabled:false}}}});
-  if(radarChart) radarChart.destroy();
+
   const row = HEATMAP_DATA.find(h=>h.code===sub.code);
-  radarChart = new Chart(document.getElementById('radarChart'),{type:'radar',data:{labels:CATEGORIES,datasets:[{label:sub.code,data:row.scores.map(s=>+s.toFixed(1)),borderColor:'#FD312E',backgroundColor:'#FD312E33',borderWidth:2,pointRadius:4},{label:'Global Avg',data:[85.2,86.1,84.5,88.3],borderColor:'#6B7280',backgroundColor:'#6B728022',borderWidth:1.5,borderDash:[4,4],pointRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11}}}},scales:{r:{min:60,max:100,ticks:{stepSize:10}}}}});
+  const baseScore = (typeof _overrideBaseScore === 'number') ? _overrideBaseScore : sub.score;
+  const effectiveScore = _detailFilter ? Number(_detailFilter.score) : baseScore;
+  const scoreDelta = effectiveScore - baseScore;
+  const effRowScores = row.scores.map(s => +Math.max(55, Math.min(100, s + scoreDelta)).toFixed(1));
+
+  document.getElementById('gauge-num').textContent = baseScore.toFixed(1);
+  document.getElementById('d-eval-cnt').textContent = sub.count.toLocaleString();
+
+  if(gaugeChart) gaugeChart.destroy();
+  gaugeChart = new Chart(document.getElementById('gaugeChart'),{type:'doughnut',data:{datasets:[{data:[baseScore,100-baseScore],backgroundColor:[baseScore>=85?'#FD312E':'#A50034','#F0F0F2'],borderWidth:0,circumference:180,rotation:270}]},options:{responsive:true,maintainAspectRatio:false,cutout:'72%',plugins:{legend:{display:false},tooltip:{enabled:false}}}});
+
+  if(radarChart) radarChart.destroy();
+  radarChart = new Chart(document.getElementById('radarChart'),{type:'radar',data:{labels:CATEGORIES,datasets:[{label:sub.code,data:effRowScores,borderColor:'#FD312E',backgroundColor:'#FD312E33',borderWidth:2,pointRadius:4},{label:'Global Avg',data:[85.2,86.1,84.5,86.8,88.3],borderColor:'#6B7280',backgroundColor:'#6B728022',borderWidth:1.5,borderDash:[4,4],pointRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11}}}},scales:{r:{min:60,max:100,ticks:{stepSize:10}}}}});
+
   if(comboChart) comboChart.destroy();
   const weeks=['W1','W2','W3','W4'], seed=sub.code.charCodeAt(0)+sub.code.charCodeAt(1);
-  const sc = weeks.map((w,i)=>+(sub.score-2+((seed+i*7)%40)/10).toFixed(1));
+  const sc = weeks.map((w,i)=>+(effectiveScore-2+((seed+i*7)%40)/10).toFixed(1));
   const vl = weeks.map((w,i)=>Math.floor(sub.count/4+((seed+i*13)%60)-30));
-  comboChart = new Chart(document.getElementById('comboChart'),{data:{labels:weeks,datasets:[{type:'bar',label:'Evaluations',data:vl,backgroundColor:'#FECACA',borderRadius:4,yAxisID:'y1',barThickness:40},{type:'line',label:'QA Score',data:sc,borderColor:'#FD312E',borderWidth:3,pointRadius:5,tension:0.3,yAxisID:'y'}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'top',align:'end'}},scales:{y:{position:'left',min:70,max:100},y1:{position:'right',grid:{display:false}}}}});
+  comboChart = new Chart(document.getElementById('comboChart'),{data:{labels:weeks,datasets:[{type:'bar',label:'Evaluations',data:vl,backgroundColor:'#FECACA',borderRadius:4,yAxisID:'y1',barThickness:40},{type:'line',label:'QA Score',data:sc,borderColor:'#FD312E',borderWidth:3,pointRadius:5,tension:0.3,yAxisID:'y'}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},onClick:(e,els)=>{if(els.length){const idx=els[0].index;const wk=weeks[idx];const wkScore=sc[idx];applyDetailFilter({type:'week',label:'Week '+wk+' Trend',score:wkScore});const pool=['Maria Santos','James Cooper','Aisha Khan','Carlos Mendez','Linda Park','Robert Lee'];showAgentRawData([pool[idx%6],pool[(idx+1)%6],pool[(idx+2)%6],pool[(idx+3)%6]],{targetScore:wkScore,sourceLabel:wk+' Calls (Score '+wkScore+')'});}},onHover:(e,els)=>{e.native.target.style.cursor=els.length?'pointer':'default';},plugins:{legend:{position:'top',align:'end'}},scales:{y:{position:'left',min:70,max:100},y1:{position:'right',grid:{display:false}}}}});
+
   if(subcatChart) subcatChart.destroy();
-  const cats={}; EVAL_ITEMS.forEach(it=>{if(!cats[it.cat])cats[it.cat]={s:0,c:0}; cats[it.cat].s+=it.rate; cats[it.cat].c+=1;});
-  const cn = Object.keys(cats);
-  subcatChart = new Chart(document.getElementById('subcatChart'),{type:'bar',data:{labels:cn.map(c=>c+' ('+cats[c].c+' items)'),datasets:[{label:'Achievement %',data:cn.map(c=>+(cats[c].s/cats[c].c).toFixed(1)),backgroundColor:['#A50034','#FD312E','#F59E0B','#10B981'],borderRadius:6,barThickness:36}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{min:60,max:100}}}});
+  const achievementValues=effRowScores;
+  subcatChart = new Chart(document.getElementById('subcatChart'),{type:'bar',data:{labels:['Reliability (8 items)','Friendliness (5 items)','Proactiveness (3 items)','Communication Skills (4 items)','Physical Environment (2 items)'],datasets:[{label:'Achievement %',data:achievementValues,backgroundColor:['#FD312E','#A50034','#F59E0B','#3B82F6','#10B981'],borderRadius:8,barThickness:36}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,onClick:(e,els)=>{if(els.length){const idx=els[0].index;const labels=['Reliability','Friendliness','Proactiveness','Communication Skills','Physical Environment'];const pools=[['Maria Santos','James Cooper','Aisha Khan','Carlos Mendez'],['Linda Park','Robert Lee','Sofia Garcia','Michael Wong'],['Priya Patel','Daniel Kim','Maria Santos','James Cooper'],['Aisha Khan','Carlos Mendez','Linda Park','Robert Lee'],['Sofia Garcia','Michael Wong','Priya Patel','Daniel Kim']];applyDetailFilter({type:'subcat',label:'Sub-Category: '+labels[idx],score:achievementValues[idx]});showAgentRawData(pools[idx],{targetScore:achievementValues[idx],sourceLabel:labels[idx]+' Calls (Achievement '+achievementValues[idx]+'%)'});}},onHover:(e,els)=>{e.native.target.style.cursor=els.length?'pointer':'default';},plugins:{legend:{display:false}},scales:{x:{min:60,max:100},y:{display:true}}}});
+
   if(hitmissChart) hitmissChart.destroy();
   const ci = EVAL_ITEMS.filter(i=>i.critical);
-  hitmissChart = new Chart(document.getElementById('hitmissChart'),{type:'bar',data:{labels:ci.map(i=>i.name),datasets:[{label:'Fail Rate (%)',data:ci.map(i=>+(100-i.rate).toFixed(1)),backgroundColor:ci.map(i=>(100-i.rate)>5?'#A50034':'#FD312E'),borderRadius:6,barThickness:30}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,max:15},x:{ticks:{font:{size:10},maxRotation:35,minRotation:25}}}}});
-  document.getElementById('topTable').innerHTML = '<thead><tr><th>Rank</th><th>Agent</th><th>Team</th><th>Score</th><th>Calls</th></tr></thead><tbody>'+TOP_PERFORMERS.map((p,i)=>'<tr style="cursor:pointer" onclick="showAgentRawData(\''+p.name+'\')"><td><span class="rank">'+(i+1)+'</span></td><td><strong>'+p.name+'</strong></td><td>'+p.team+'</td><td><span class="score-pill high">'+p.score+'</span></td><td>'+p.calls+'</td></tr>').join('')+'</tbody>';
-  document.getElementById('botTable').innerHTML = '<thead><tr><th>Rank</th><th>Agent</th><th>Team</th><th>Score</th><th>Focus Area</th></tr></thead><tbody>'+BOTTOM_PERFORMERS.map((p,i)=>'<tr style="cursor:pointer" onclick="showAgentRawData(\''+p.name+'\')"><td><span class="rank bottom">'+(i+1)+'</span></td><td><strong>'+p.name+'</strong></td><td>'+p.team+'</td><td><span class="score-pill low">'+p.score+'</span></td><td><span class="tag critical">'+p.focus+'</span></td></tr>').join('')+'</tbody>';
+  hitmissChart = new Chart(document.getElementById('hitmissChart'),{type:'bar',data:{labels:ci.map(i=>i.name),datasets:[{label:'Fail Rate (%)',data:ci.map(i=>+(100-i.rate).toFixed(1)),backgroundColor:ci.map(i=>(100-i.rate)>5?'#A50034':'#FD312E'),borderRadius:6,barThickness:30}]},options:{responsive:true,maintainAspectRatio:false,onClick:(e,els)=>{if(els.length){const idx=els[0].index;const item=ci[idx];const pool=['Robert Lee','Sofia Garcia','Michael Wong','Priya Patel','Daniel Kim','Maria Santos','James Cooper','Aisha Khan'];const sel=[pool[idx%8],pool[(idx+1)%8],pool[(idx+2)%8],pool[(idx+3)%8]];applyDetailFilter({type:'critical',label:'Critical Item: '+item.name+' (Fail '+(100-item.rate).toFixed(1)+'%)',score:item.rate});showAgentRawData(sel,{targetScore:item.rate,sourceLabel:item.name+' (Fail Rate '+(100-item.rate).toFixed(1)+'%)'});}},onHover:(e,els)=>{e.native.target.style.cursor=els.length?'pointer':'default';},plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,max:15},x:{ticks:{font:{size:10},maxRotation:35,minRotation:25}}}}});
+
+  document.getElementById('topTable').innerHTML = '<thead><tr><th>Rank</th><th>Agent</th><th>Team</th><th>Score</th><th>Calls</th></tr></thead><tbody>'+TOP_PERFORMERS.map((p,i)=>'<tr style="cursor:pointer" onclick="selectAgent(\''+p.name+'\','+p.score+',\'top\')"><td><span class="rank">'+(i+1)+'</span></td><td><strong>'+p.name+'</strong></td><td>'+p.team+'</td><td><span class="score-pill high">'+p.score+'</span></td><td>'+p.calls+'</td></tr>').join('')+'</tbody>';
+  document.getElementById('botTable').innerHTML = '<thead><tr><th>Rank</th><th>Agent</th><th>Team</th><th>Score</th><th>Focus Area</th></tr></thead><tbody>'+BOTTOM_PERFORMERS.map((p,i)=>'<tr style="cursor:pointer" onclick="selectAgent(\''+p.name+'\','+p.score+',\'bot\')"><td><span class="rank bottom">'+(i+1)+'</span></td><td><strong>'+p.name+'</strong></td><td>'+p.team+'</td><td><span class="score-pill low">'+p.score+'</span></td><td><span class="tag critical">'+p.focus+'</span></td></tr>').join('')+'</tbody>';
+
   if(deductionChart) deductionChart.destroy();
   const sd = [...EVAL_ITEMS].sort((a,b)=>a.rate-b.rate).slice(0,10);
-  deductionChart = new Chart(document.getElementById('deductionChart'),{type:'bar',data:{labels:sd.map(i=>i.name),datasets:[{label:'Deduction',data:sd.map(i=>+(100-i.rate).toFixed(1)),backgroundColor:sd.map(i=>i.critical?'#A50034':'#FD312E'),borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true},x:{ticks:{font:{size:10},maxRotation:30,minRotation:20}}}}});
-  document.getElementById('agent-raw-wrap').style.display = 'none';
-}
-function refreshDetail(){ currentDetailSub = document.getElementById('d-sub').value; renderDetail(); }
+  deductionChart = new Chart(document.getElementById('deductionChart'),{type:'bar',data:{labels:sd.map(i=>i.name),datasets:[{label:'Deduction',data:sd.map(i=>+(100-i.rate).toFixed(1)),backgroundColor:sd.map(i=>i.critical?'#A50034':'#FD312E'),borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,onClick:(e,els)=>{if(els.length){const idx=els[0].index;const item=sd[idx];const pool=['Maria Santos','James Cooper','Aisha Khan','Carlos Mendez','Linda Park','Robert Lee','Sofia Garcia','Michael Wong','Priya Patel','Daniel Kim'];const sel=[pool[idx%10],pool[(idx+1)%10],pool[(idx+2)%10],pool[(idx+3)%10]];applyDetailFilter({type:'deduction',label:'Deduction Reason: '+item.name,score:item.rate});showAgentRawData(sel,{targetScore:item.rate,sourceLabel:item.name+' Deduction Cases'});}},onHover:(e,els)=>{e.native.target.style.cursor=els.length?'pointer':'default';},plugins:{legend:{display:false}},scales:{y:{beginAtZero:true},x:{ticks:{font:{size:10},maxRotation:30,minRotation:20}}}}});
 
-function showAgentRawData(name){
+  if(!_detailFilter){
+    document.getElementById('agent-raw-wrap').style.display = 'none';
+    const banner = document.getElementById('detail-active-filter');
+    if(banner) banner.style.display = 'none';
+  }
+}
+
+function refreshDetail(){ currentDetailSub = document.getElementById('d-sub').value; renderDetail(); }
+let _detailFilter = null;
+let _overrideBaseScore = null;
+function applyDetailFilter(filter){
+  _detailFilter = filter;
+  const banner = document.getElementById('detail-active-filter');
+  const txt = document.getElementById('daf-text');
+  banner.style.display = 'flex';
+  txt.innerHTML = '<strong>Active Filter:</strong> ' + filter.label + ' &middot; Target Score: <strong>' + Number(filter.score).toFixed(1) + '</strong>';
+  renderDetail();
+  flashDetailCards();
+  setTimeout(()=>{banner.scrollIntoView({behavior:'smooth',block:'start'});}, 50);
+}
+function clearDetailFilter(){
+  _detailFilter = null;
+  document.getElementById('detail-active-filter').style.display = 'none';
+  document.getElementById('agent-raw-wrap').style.display = 'none';
+  renderDetail();
+  flashDetailCards();
+}
+function flashDetailCards(){
+  document.querySelectorAll('#page-detail .card, #page-detail .raw-card').forEach(c=>{
+    c.classList.remove('detail-flash');
+    void c.offsetWidth;
+    c.classList.add('detail-flash');
+  });
+}
+function selectAgent(name, score, type){
+  const labelPrefix = type==='top' ? '&#127942; Top Performer: ' : '&#9888; Bottom Performer: ';
+  applyDetailFilter({type:'agent', label: labelPrefix + name, score: score});
+  showAgentRawData(name, {targetScore: score});
+}
+
+
+function showAgentRawData(input, options){
+  options = options || {};
+  let names, title, targetScore;
+  if(Array.isArray(input)){ names = input.length?input:['Agent']; title = options.sourceLabel || 'Selected Calls'; targetScore = options.targetScore; }
+  else { names = [input]; title = 'Calls handled by ' + input; targetScore = options.targetScore; }
   const queues = ['IB - [SUPORTE - HE] OUTROS','OBS - STATUS','IB - [SUPORTE - REFRIGERADOR]','IB - ASC HA','IB - ASC TV > 40','IB - [SUPORTE - LAVADORA] OUTROS'];
   const subs = ['LGEUS','LGEUK','LGEDG','LGEFS','LGEBR','LGEAR','LGEIS','LGEES'];
   const times = ['09:12','10:34','11:48','13:05','14:22','15:40','16:18','17:02','17:37','18:14'];
@@ -1858,12 +1987,21 @@ function showAgentRawData(name){
   const CRITICAL_ITEMS_POOL = ['Greeting / Presentation','Pause Management','Clarity and Correctness','Critical Procedure'];
   function hex(n){const c='0123456789abcdef';let r='';for(let i=0;i<n;i++)r+=c[Math.floor(Math.random()*16)];return r;}
   function uuid(){return hex(8)+'-'+hex(4)+'-'+hex(4)+'-'+hex(4)+'-'+hex(12);}
-  const seed = name.charCodeAt(0) + (name.charCodeAt(1)||0);
+  const baseName = names[0] || 'Agent';
+  const seed = (baseName.charCodeAt(0)||65) + (baseName.charCodeAt(1)||0);
   const n = 8 + (seed%4);
   const rows = [];
   for(let i=0;i<n;i++){
+    const agentName = names[i % names.length];
     const status = statuses[i % statuses.length];
-    const score = status==='Pending' ? null : 50 + ((seed+i*7)%45);
+    let score;
+    if(status==='Pending'){ score = null; }
+    else if(typeof targetScore === 'number'){
+      const offset = ((seed+i*13)%55)/10 - 2.7;
+      score = Math.max(40, Math.min(100, Math.round((targetScore + offset) * 10) / 10));
+    } else {
+      score = 50 + ((seed+i*7)%45);
+    }
     const isCritical = score!==null && score<60;
     let issues = [];
     if(isCritical){
@@ -1871,10 +2009,10 @@ function showAgentRawData(name){
       const startIdx = (seed+i) % CRITICAL_ITEMS_POOL.length;
       for(let k=0;k<numIssues;k++){ issues.push(CRITICAL_ITEMS_POOL[(startIdx+k) % CRITICAL_ITEMS_POOL.length]); }
     }
-    rows.push({id:uuid(), date:dates[i%dates.length], time:times[i%times.length], agent:name, subsidiary:subs[i%subs.length], score:score, status:status, queue:queues[i%queues.length], critical:isCritical, criticalIssues:issues});
+    rows.push({id:uuid(), date:dates[i%dates.length], time:times[i%times.length], agent:agentName, subsidiary:subs[i%subs.length], score:score, status:status, queue:queues[i%queues.length], critical:isCritical, criticalIssues:issues});
   }
   window._agentRows = rows;
-  document.getElementById('agent-raw-title').textContent = 'Calls handled by ' + name;
+  document.getElementById('agent-raw-title').textContent = title;
   document.getElementById('agent-raw-count').textContent = rows.length;
   let h = '<thead><tr><th>Action</th><th>ID</th><th>Date/Time</th><th>Agent</th><th>Subsidiary</th><th>AI Score</th><th>Status</th><th>Queue</th><th style="text-align:center">Critical Error</th></tr></thead><tbody>';
   rows.forEach((r,i)=>{
@@ -1882,11 +2020,11 @@ function showAgentRawData(name){
       ? '<div class="progress-wrap"><div class="progress-bar"><div class="progress-fill" style="width:0"></div></div><span class="progress-num" style="color:var(--text-sub)">N/A</span></div>'
       : '<div class="progress-wrap"><div class="progress-bar"><div class="progress-fill" style="width:'+r.score+'%;background:'+(r.score>=80?'#10B981':(r.score>=60?'#F59E0B':'#EF4444'))+'"></div></div><span class="progress-num" style="color:'+(r.score>=80?'#065F46':(r.score>=60?'#92400E':'#991B1B'))+'">'+r.score+'</span></div>';
     const scCls = r.status==='Pending'?'pending':(r.status==='Completed'?'completed':'analyzed');
-    const critTooltip = r.critical && r.criticalIssues && r.criticalIssues.length ? 'Failed Critical Items:&#10;' + r.criticalIssues.map(x=>'• '+x).join('&#10;') : '';
+    const critTooltip = r.critical && r.criticalIssues && r.criticalIssues.length ? 'Failed Critical Items:&#10;' + r.criticalIssues.map(x=>'\u2022 '+x).join('&#10;') : '';
     const critCell = r.critical
       ? '<td class="raw-critical-cell has-error" title="'+critTooltip+'"><span class="raw-crit-badge error">&#9888; Critical Error</span></td>'
       : '<td class="raw-critical-cell"><span class="raw-crit-dash">&mdash;</span></td>';
-    h += '<tr onclick="openQAPage(window._agentRows['+i+'])"><td><button class="raw-action-btn" onclick="event.stopPropagation(); openQAPage(window._agentRows['+i+'])" title="View detail">&#128065;</button></td><td><span class="raw-id">'+r.id+'</span></td><td><div class="raw-datetime">'+r.date+'<span>'+r.time+'</span></div></td><td><strong>'+r.agent+'</strong></td><td>'+r.subsidiary+'</td><td>'+sh+'</td><td><span class="status-pill '+scCls+'">'+r.status+'</span></td><td><span class="queue-cell">'+r.queue+'</span></td>'+critCell+'</tr>';
+    h += '<tr onclick="openQAPage(window._agentRows['+i+'])"><td><button class="raw-action-btn" onclick="event.stopPropagation(); openQAPage(window._agentRows['+i+'])" title="View detail">&#128065;</button></td><td><span class="raw-id">'+r.id+'</span></td><td><div class="raw-datetime">'+r.date+'<span>'+r.time+'</span></div></td><td>'+r.agent+'</td><td><strong>'+r.subsidiary+'</strong></td><td>'+sh+'</td><td><span class="status-pill '+scCls+'">'+r.status+'</span></td><td><span class="queue-cell">'+r.queue+'</span></td>'+critCell+'</tr>';
   });
   h += '</tbody>';
   document.getElementById('agentRawTable').innerHTML = h;
@@ -1894,6 +2032,49 @@ function showAgentRawData(name){
   setTimeout(()=>{document.getElementById('agent-raw-wrap').scrollIntoView({behavior:'smooth',block:'start'});}, 100);
 }
 function closeAgentRawData(){ document.getElementById('agent-raw-wrap').style.display = 'none'; }
+
+function setAgentRawChannel(ch, btn){ document.querySelectorAll('#agent-raw-wrap .toggle-btn').forEach(b=>b.classList.remove('active')); if(btn) btn.classList.add('active'); applyAgentRawFilters(); }
+function setAgentRawDate(d, btn){ document.querySelectorAll('#agent-raw-wrap .chip-btn').forEach(b=>b.classList.remove('active')); if(btn) btn.classList.add('active'); applyAgentRawFilters(); }
+function applyAgentRawFilters(){
+  const rows = window._agentRows || [];
+  if(rows.length === 0) return;
+  const subSel = (document.getElementById('ar-sub')||{}).value || '';
+  const agent = (document.getElementById('ar-agent')||{}).value || '';
+  const queue = (document.getElementById('ar-queue')||{}).value || '';
+  const score = (document.getElementById('ar-score')||{}).value || '';
+  const convid = ((document.getElementById('ar-convid')||{}).value || '').trim().toLowerCase();
+  const filtered = rows.filter(r=>{
+    if(subSel && subSel.indexOf('All')===-1 && r.subsidiary!==subSel) return false;
+    if(agent && agent.indexOf('All')===-1 && r.agent!==agent) return false;
+    if(queue && queue.indexOf('All')===-1 && r.queue!==queue) return false;
+    if(convid && r.id.toLowerCase().indexOf(convid)===-1) return false;
+    if(score && score.indexOf('All')===-1){
+      const s = r.score;
+      if(s===null) return false;
+      if(score.charAt(0)==='9' && s<90) return false;
+      else if(score.charAt(0)==='8' && s<80) return false;
+      else if(score.charAt(0)==='7' && s<70) return false;
+      else if(score.charAt(0)==='6' && s<60) return false;
+      else if(score.charAt(0)==='<' && s>=60) return false;
+    }
+    return true;
+  });
+  document.getElementById('agent-raw-count').textContent = filtered.length;
+  let h = '<thead><tr><th>Action</th><th>ID</th><th>Date/Time</th><th>Agent</th><th>Subsidiary</th><th>AI Score</th><th>Status</th><th>Queue</th><th style="text-align:center">Critical Error</th></tr></thead><tbody>';
+  filtered.forEach((r)=>{
+    const origIdx = rows.indexOf(r);
+    const sh = r.score===null
+      ? '<div class="progress-wrap"><div class="progress-bar"><div class="progress-fill" style="width:0"></div></div><span class="progress-num" style="color:var(--text-sub)">N/A</span></div>'
+      : '<div class="progress-wrap"><div class="progress-bar"><div class="progress-fill" style="width:'+r.score+'%;background:'+(r.score>=80?'#10B981':(r.score>=60?'#F59E0B':'#EF4444'))+'"></div></div><span class="progress-num" style="color:'+(r.score>=80?'#065F46':(r.score>=60?'#92400E':'#991B1B'))+'">'+r.score+'</span></div>';
+    const scCls = r.status==='Pending'?'pending':(r.status==='Completed'?'completed':'analyzed');
+    const critTooltip = r.critical && r.criticalIssues && r.criticalIssues.length ? 'Failed Critical Items:&#10;' + r.criticalIssues.map(x=>'\u2022 '+x).join('&#10;') : '';
+    const critCell = r.critical ? '<td class="raw-critical-cell has-error" title="'+critTooltip+'"><span class="raw-crit-badge error">&#9888; Critical Error</span></td>' : '<td class="raw-critical-cell"><span class="raw-crit-dash">&mdash;</span></td>';
+    h += '<tr onclick="openQAPage(window._agentRows['+origIdx+'])"><td><button class="raw-action-btn" onclick="event.stopPropagation(); openQAPage(window._agentRows['+origIdx+'])" title="View detail">&#128065;</button></td><td><span class="raw-id">'+r.id+'</span></td><td><div class="raw-datetime">'+r.date+'<span>'+r.time+'</span></div></td><td>'+r.agent+'</td><td><strong>'+r.subsidiary+'</strong></td><td>'+sh+'</td><td><span class="status-pill '+scCls+'">'+r.status+'</span></td><td><span class="queue-cell">'+r.queue+'</span></td>'+critCell+'</tr>';
+  });
+  h += '</tbody>';
+  document.getElementById('agentRawTable').innerHTML = h;
+}
+
 function downloadAgentRawCSV(){
   const rows = window._agentRows || [];
   if(rows.length === 0){ alert('No data to download'); return; }
