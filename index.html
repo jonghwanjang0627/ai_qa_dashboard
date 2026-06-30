@@ -2387,9 +2387,102 @@ function qaRenderForm(){
   h += '</tbody>';
   tbl.innerHTML = h;
 }
+const QA_DIALOGUES = {
+  'Greeting': [
+    {role:'agent', text:'Good afternoon, thank you for calling LG Customer Care. My name is Sarah. How may I help you today?'},
+    {role:'customer', text:'Hi Sarah, I am calling about an issue with my washing machine.'}
+  ],
+  'Closing': [
+    {role:'agent', text:'Thank you for contacting LG today. My name is Sarah and have a wonderful day. Goodbye.'},
+    {role:'customer', text:'Thank you, you too. Goodbye.'}
+  ],
+  'Understanding the customer inquiry': [
+    {role:'customer', text:'My washing machine stops mid cycle and will not drain the water.'},
+    {role:'agent', text:'So your washing machine is stopping in the middle of the cycle and not draining. Is that correct?'},
+    {role:'customer', text:'Yes, that is exactly the problem.'}
+  ],
+  'Call Transfer Guide': [
+    {role:'agent', text:'I will need to transfer you to our appliance specialist team. Please hold while I connect you.'},
+    {role:'customer', text:'Wait, can you tell me what is going to happen and how long the wait might be?'}
+  ],
+  'Required Information Verification (Model Name, S/N)': [
+    {role:'agent', text:'Could you please share the model number and serial number from the back of your washing machine?'},
+    {role:'customer', text:'Sure, the model is W T 7 9 0 0 and the serial number is L G 2 0 2 5 1 1 4.'},
+    {role:'agent', text:'Thank you, let me verify that in our system.'}
+  ],
+  'Accurate guidance': [
+    {role:'agent', text:'Please press the power button for five seconds to reset the device, then release.'},
+    {role:'customer', text:'Alright, I have pressed and released the power button. What is next?'}
+  ],
+  'Feasibility of Action Steps': [
+    {role:'agent', text:'First, please unplug the washer from the wall. Then wait thirty seconds, and plug it back in.'},
+    {role:'customer', text:'Okay, I can do that right now.'}
+  ],
+  'Confirmation of Resolution': [
+    {role:'agent', text:'Has the issue been fully resolved on your side now?'},
+    {role:'customer', text:'Yes, the washer is running again. Thank you so much.'}
+  ],
+  'Ending the call after closing': [
+    {role:'agent', text:'Thank you for choosing LG, have a wonderful day. Goodbye.'},
+    {role:'customer', text:'Goodbye.'}
+  ],
+  'Active listening': [
+    {role:'customer', text:'And another thing, the machine has been making a strange noise for weeks.'},
+    {role:'agent', text:'I understand. I am noting that as well. Please continue.'}
+  ],
+  'Pre-hold Acknowledgment': [
+    {role:'agent', text:'Could you please wait for a moment while I check your account details?'},
+    {role:'customer', text:'Yes, of course.'},
+    {role:'agent', text:'Thank you for your patience. I have the information now.'}
+  ],
+  'Correct expression': [
+    {role:'agent', text:'I sincerely apologize for the inconvenience this has caused you.'},
+    {role:'customer', text:'Thank you for understanding.'}
+  ],
+  'polite expression': [
+    {role:'agent', text:'Could you kindly hold on for one moment, please?'},
+    {role:'customer', text:'Sure, take your time.'}
+  ],
+  'Prompt response': [
+    {role:'customer', text:'Are you still there?'},
+    {role:'agent', text:'Yes, I am here. Let me check that for you right away. One moment, please.'}
+  ],
+  'Empathy Expression': [
+    {role:'customer', text:'This has been so frustrating, I have been waiting for this repair for two weeks.'},
+    {role:'agent', text:'I completely understand how frustrating this delay must be for you. Let me make this right today.'}
+  ],
+  'Checking for Additional Inquiries': [
+    {role:'agent', text:'Is there anything else I can help you with today? You will also receive a short N P S survey shortly.'},
+    {role:'customer', text:'No, that is all. Thank you.'}
+  ],
+  'Pronunciation': [
+    {role:'agent', text:'Please remove the lint filter and rinse it under warm water.'},
+    {role:'customer', text:'Got it, removing the lint filter now.'}
+  ],
+  'Intonation': [
+    {role:'agent', text:'I understand this is urgent, and I will do my best to resolve it quickly for you.'},
+    {role:'customer', text:'Thank you, I appreciate that.'}
+  ],
+  'Pace': [
+    {role:'agent', text:'Let us go through the steps together, one at a time, so we do not miss anything.'},
+    {role:'customer', text:'Yes, that would be very helpful.'}
+  ],
+  'Verbal Habits': [
+    {role:'agent', text:'The next step is to press the start button and select the rinse cycle.'},
+    {role:'customer', text:'Okay, I am pressing start now.'}
+  ],
+  'Background Noise': [
+    {role:'customer', text:'Sorry, it is a little loud here. Can you repeat that?'},
+    {role:'agent', text:'Of course, I will speak up. Please remove the lint filter and rinse it under warm water.'}
+  ],
+  'After-Call Work (ACW) Management': [
+    {role:'agent', text:'Thank you for your patience today. I will document this case and send you a confirmation email shortly.'},
+    {role:'customer', text:'Thank you, I will look out for it.'}
+  ]
+};
+
 function qaPlayAudio(btn, itemName){
   const isPlaying = btn.classList.contains('playing');
-  /* Stop any currently playing audio buttons */
   document.querySelectorAll('.qa-audio-btn.playing').forEach(b=>{
     b.classList.remove('playing');
     const ic = b.querySelector('.audio-icon');
@@ -2397,52 +2490,72 @@ function qaPlayAudio(btn, itemName){
   });
   if(window.speechSynthesis){ window.speechSynthesis.cancel(); }
   if(isPlaying){
-    qaShowToast('⏹ Stopped: '+itemName);
+    qaShowToast('\u23F9 Stopped: '+itemName);
     return;
   }
-  /* Find STT text for this item from QA_FORM_ITEMS */
-  let sttText = '';
-  if(typeof QA_FORM_ITEMS !== 'undefined'){
-    const found = QA_FORM_ITEMS.find(it => it.item === itemName);
-    if(found && Array.isArray(found.stt) && found.stt.length){
-      sttText = found.stt.join(' ');
-    }
-  }
-  /* Strip parenthetical notes like (Audio review required) */
-  sttText = sttText.replace(/\([^)]*\)/g, '').trim();
-  if(!sttText){ sttText = 'Sample audio recording for ' + itemName + '.'; }
-  /* Web Speech API check */
   if(!('speechSynthesis' in window) || !('SpeechSynthesisUtterance' in window)){
-    qaShowToast('⚠ Voice synthesis not supported in this browser');
+    qaShowToast('\u26A0 Voice synthesis not supported in this browser');
     return;
   }
+  /* Get dialogue script or fallback to STT */
+  let dialogue = QA_DIALOGUES[itemName];
+  if(!dialogue){
+    let sttText = 'Sample audio recording for ' + itemName + '.';
+    if(typeof QA_FORM_ITEMS !== 'undefined'){
+      const found = QA_FORM_ITEMS.find(it => it.item === itemName);
+      if(found && Array.isArray(found.stt) && found.stt.length){
+        sttText = found.stt.join(' ').replace(/\([^)]*\)/g, '').trim() || sttText;
+      }
+    }
+    dialogue = [{role:'agent', text: sttText}];
+  }
+  /* Pick voices: female English for agent, male English for customer */
+  const voices = window.speechSynthesis.getVoices();
+  const femaleHints = ['female','samantha','zira','karen','joanna','susan','victoria','allison','tessa','moira','google us english','google uk english female','aria','jenny','sara'];
+  const maleHints = ['male','david','daniel','alex','tom','mark','james','fred','google uk english male','guy','brian'];
+  function pickVoice(hints){
+    if(!voices || !voices.length) return null;
+    const enVoices = voices.filter(v => v.lang && v.lang.toLowerCase().startsWith('en'));
+    const pool = enVoices.length ? enVoices : voices;
+    for(const hint of hints){
+      const found = pool.find(v => (v.name||'').toLowerCase().includes(hint));
+      if(found) return found;
+    }
+    return pool[0] || null;
+  }
+  const agentVoice = pickVoice(femaleHints);
+  const customerVoice = pickVoice(maleHints) || agentVoice;
   btn.classList.add('playing');
   const ic = btn.querySelector('.audio-icon');
   if(ic) ic.innerHTML = '&#9208;';
-  qaShowToast('▶ Playing: '+itemName);
-  const utterance = new SpeechSynthesisUtterance(sttText);
-  utterance.lang = 'en-US';
-  utterance.rate = 1.0;
-  utterance.pitch = 1.0;
-  utterance.volume = 1.0;
-  try {
-    const voices = window.speechSynthesis.getVoices();
-    const enVoice = voices.find(v => v.lang && v.lang.toLowerCase().startsWith('en'));
-    if(enVoice) utterance.voice = enVoice;
-  } catch(e) {}
-  utterance.onend = function(){
-    btn.classList.remove('playing');
-    const ic2 = btn.querySelector('.audio-icon');
-    if(ic2) ic2.innerHTML = '&#127911;';
-  };
-  utterance.onerror = function(){
-    btn.classList.remove('playing');
-    const ic2 = btn.querySelector('.audio-icon');
-    if(ic2) ic2.innerHTML = '&#127911;';
-  };
-  window.speechSynthesis.speak(utterance);
+  qaShowToast('\u25B6 Playing: '+itemName);
+  function speakTurn(idx){
+    if(!btn.classList.contains('playing')) return;
+    if(idx >= dialogue.length){
+      btn.classList.remove('playing');
+      const ic2 = btn.querySelector('.audio-icon');
+      if(ic2) ic2.innerHTML = '&#127911;';
+      return;
+    }
+    const turn = dialogue[idx];
+    const u = new SpeechSynthesisUtterance(turn.text);
+    u.lang = 'en-US';
+    if(turn.role === 'agent'){
+      if(agentVoice) u.voice = agentVoice;
+      u.rate = 0.95;
+      u.pitch = 1.15;
+    } else {
+      if(customerVoice) u.voice = customerVoice;
+      u.rate = 1.0;
+      u.pitch = 0.92;
+    }
+    u.volume = 1.0;
+    u.onend = function(){ speakTurn(idx + 1); };
+    u.onerror = function(){ speakTurn(idx + 1); };
+    window.speechSynthesis.speak(u);
+  }
+  speakTurn(0);
 }
-/* Warm up voices list for browsers that load voices asynchronously */
 if(typeof window !== 'undefined' && 'speechSynthesis' in window){
   window.speechSynthesis.onvoiceschanged = function(){};
 }
