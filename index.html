@@ -3070,7 +3070,7 @@ renderRawDataTable();
   /* --- Authorized users (same whitelist as the viewer) --- */
   var ALLOWED = ["juno.baek@lge.com", "kyungsun1.park@lge.com", "seounghun.ryu@lge.com", "wonwook.kim@lge.com", "bogyeong.youn@lge.com", "jay.hwang@lge.com", "namkweon.kim@lge.com", "rafael.souza@lge.com", "yina.yun@lge.com", "jj.jung@lge.com", "youngju1.kim@lge.com", "eunmi1.lee@lge.com", "jose.juncovilladiego@lge.com", "kseon.ryu@lge.com", "yeonseo.park@lge.com", "gyuhyun.choi@lge.com", "jongyoul.park@lge.com", "noemi.palomares@lge.com", "alex.moreira@lge.com", "marconi.filho@lge.com", "soonyou.kwon@lge.com", "regiane.costa@lge.com", "andres.buitragoleal@lge.com", "sungho.cho@lge.com", "moohee.moon@lge.com", "euijung.chung@lge.com", "lori.bates@lge.com", "merla.morales@lge.com", "hend.elsayed@lge.com", "ayman.saeid@lge.com", "mohammed.alfatta@lge.com", "hedeil1.hasheem@lgepartner.com", "assem.alaa@lge.com", "levent.yilmaz@lge.com", "murat.ozdemir@lge.com", "brahim.choukri@lge.com", "asma.belabraham@lge.com", "yasmina.ramdani@lge.com", "olivia.matvba@lgepartner.com", "thandi.mokete@lgepartner.com", "ahmed.samir@lgepartner.com", "akaki.goglidze@lge.com", "arun.arjunan@lge.com", "rose.onyeador@lgepartner.com", "nour.almhasi@lge.com", "bessy.obura@lgepartner.com", "paul.kungu@lgepartner.com", "mary.kamanda@lge.com", "songwoon.choi@lge.com", "irenegrace.alilam@lge.com", "steve.torre@lge.com", "jonghwan.jang@lge.com", "jeanna.bondad@lge.com", "jovanna.juan@lge.com"];
   var allowSet = {};
-  for (var i=0;i<ALLOWED.length;i++){ allowSet[ALLOWED[i]] = true; }
+  for (var i=0;i<ALLOWED.length;i++){ allowSet[ALLOWED[i].toLowerCase()] = true; }
 
   /* --- Login gate on dashboard load --- */
   document.body.classList.add('gate-locked');
