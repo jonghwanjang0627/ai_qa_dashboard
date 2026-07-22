@@ -3,9 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LG Electronics | Global QA Evaluation Dashboard v13</title>
+<title>LG Electronics | Global QA Evaluation Dashboard v43</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&family=Playfair+Display:ital,wght@1,500;1,600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 :root{--lg-active-red:#FD312E;--lg-heritage-red:#A50034;--lg-black:#000000;--lg-white:#FFFFFF;--lg-warm-grey:#F0ECE4;--lg-light-grey-1:#F6F3EB;--lg-light-grey-2:#F0ECE4;--lg-light-grey-3:#E6E1D6;--lg-mid-grey-1:#CBC8C2;--lg-mid-grey-2:#7E7C77;--lg-mid-grey-3:#4A4946;--lg-dark-grey-1:#333333;--lg-dark-grey-2:#262626;--lg-dark-grey-3:#1A1A1A;--bg:#F6F3EB;--surface:#FFFFFF;--text:#1A1A1A;--text-sub:#7E7C77;--text-mid:#4A4946;--border:#E6E1D6;--border-strong:#000000;--success:#287D00;--warning:#F7B500;--danger:#FD312E;--info:#076369;}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -119,6 +121,48 @@ main{padding:20px 32px 40px}
 .chart-wrap{position:relative;height:480px}
 .chart-wrap.tall{height:680px}
 .chart-wrap.short{height:240px}
+/* ===== v39: QA Score Map (Subsidiary Comparison) ===== */
+#lgQaMap{--map-line:var(--border);font-family:'Inter','Roboto','Noto Sans KR',sans-serif;color:var(--text);position:relative}
+#lgQaMap .qa-crumb{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-sub);margin-bottom:10px;min-height:30px}
+#lgQaMap .qa-crumb .bk{background:var(--lg-active-red);color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s}
+#lgQaMap .qa-crumb .bk:hover{background:var(--lg-heritage-red)}
+#lgQaMap .qa-crumb .lvl{font-weight:600;color:var(--text)}
+#lgQaMap .qa-map-wrap{position:relative}
+#lgQaMap .qa-lmap{width:100%;height:600px;border-radius:12px;border:1px solid var(--border);z-index:1}
+#lgQaMap .qa-overlay{position:absolute;top:12px;left:12px;z-index:500;background:rgba(255,255,255,.97);border:1px solid var(--border);border-radius:12px;box-shadow:0 6px 20px rgba(17,24,39,.18);padding:12px 14px;min-width:262px;max-width:290px;opacity:0;transform:translateY(-6px);transition:opacity .15s,transform .15s;pointer-events:none}
+#lgQaMap .qa-overlay.show{opacity:1;transform:translateY(0)}
+#lgQaMap .qa-overlay .ov-name{font-size:14px;font-weight:700;display:flex;align-items:center;gap:7px;margin-bottom:9px}
+#lgQaMap .qa-overlay .ov-name .swb{width:12px;height:12px;border-radius:4px;flex:0 0 12px}
+#lgQaMap .qa-overlay .ov-subs{font-size:10px;color:var(--text-sub);font-weight:600;margin:-4px 0 9px 19px}
+#lgQaMap .qa-overlay .ov-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#lgQaMap .qa-overlay .ov-kpi{background:var(--lg-light-grey-1);border-radius:8px;padding:7px 9px}
+#lgQaMap .qa-overlay .ov-kpi .k{font-size:10px;color:var(--text-sub);font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+#lgQaMap .qa-overlay .ov-kpi .v{font-size:17px;font-weight:700;line-height:1.1;margin-top:2px}
+#lgQaMap .qa-overlay .ov-kpi .v small{font-size:11px;font-weight:600;color:var(--text-sub)}
+#lgQaMap .qa-overlay .ov-kpi .v.pos{color:var(--success)}
+#lgQaMap .qa-overlay .ov-kpi .v.neg{color:var(--lg-active-red)}
+#lgQaMap .qa-overlay .ov-kpi .d{font-size:9px;font-weight:700;line-height:1.2;margin-top:3px}
+#lgQaMap .qa-overlay .ov-kpi .d.pos{color:var(--success)}
+#lgQaMap .qa-overlay .ov-kpi .d.neg{color:var(--lg-active-red)}
+#lgQaMap .qa-overlay .ov-total{display:flex;align-items:center;justify-content:space-between;margin-top:9px;padding:9px 11px;border-radius:8px;background:linear-gradient(90deg,var(--lg-heritage-red),var(--lg-active-red));color:#fff}
+#lgQaMap .qa-overlay .ov-total .k{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;opacity:.95}
+#lgQaMap .qa-overlay .ov-total .v{font-size:18px;font-weight:800;line-height:1}
+#lgQaMap .qa-overlay .ov-hint{font-size:10px;color:var(--text-sub);margin-top:8px}
+#lgQaMap .qa-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--text-sub);margin-top:10px;align-items:center}
+#lgQaMap .qa-legend .dot{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+.leaflet-tooltip.qa-tip{background:rgba(26,26,26,.96);color:#fff;border:none;border-radius:8px;padding:8px 11px;font-size:12px;line-height:1.5;box-shadow:0 6px 18px rgba(0,0,0,.25);font-family:'Inter','Roboto',sans-serif}
+.leaflet-tooltip.qa-tip::before{display:none}
+.leaflet-tooltip.qa-tip b{color:#FFD2DD}
+.qa-bub-label{background:none;border:none;box-shadow:none;text-align:center}
+.qa-bub-label .pill{display:inline-block;color:#fff;font-weight:700;font-size:12px;line-height:1;padding:3px 8px;border-radius:9px;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.45);text-shadow:0 1px 1px rgba(0,0,0,.35);cursor:pointer;font-family:'Inter','Roboto',sans-serif}
+.qa-map-legend{background:rgba(255,255,255,.96);padding:10px 12px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.15);font-size:11px;line-height:1.6;font-family:'Inter','Roboto',sans-serif}
+.qa-map-legend .lgt{font-weight:700;color:var(--text);margin-bottom:6px}
+.qa-map-legend .row{display:flex;align-items:center;gap:7px;color:var(--text-mid)}
+.qa-map-legend .sw{width:14px;height:14px;border-radius:4px;flex:0 0 14px;border:1px solid rgba(0,0,0,.1)}
+.qa-map-legend .sz{margin-top:7px;padding-top:7px;border-top:1px solid var(--border);color:var(--text-sub)}
+.qa-map-legend .szrow{display:flex;align-items:flex-end;gap:9px;margin-top:6px;flex-wrap:wrap}
+.qa-map-legend .szitem{display:inline-flex;flex-direction:column;align-items:center;gap:3px;font-size:9px;color:#6b7280;font-weight:600}
+.qa-map-legend .szdot{border-radius:50%;background:rgba(126,124,119,.28);border:1px solid rgba(126,124,119,.55)}
 .chart-wrap.med{height:320px}
 .chart-wrap.trend{height:380px}
 /* === v8/v10: Enhanced Category Performance Heatmap === */
@@ -702,9 +746,23 @@ body.der-open{overflow:hidden;}
 
     <div class="chart-grid col-2">
       <div class="card">
-        <div class="card-title">Subsidiary Comparison <span style="font-size:11px;color:var(--text-sub);font-weight:400"><span style="display:inline-block;width:18px;border-top:2px dashed var(--lg-active-red);vertical-align:middle"></span> Target 85</span></div>
-        <div class="card-subtitle">Colored group separator bars between regions &middot; Ordered by country GDP rank &middot; Click bar for detail &rarr;</div>
-        <div class="chart-wrap tall"><canvas id="bulletChart"></canvas></div>
+        <div class="card-title">Subsidiary Comparison <span style="font-size:11px;color:var(--text-sub);font-weight:400"><span style="display:inline-block;width:11px;height:11px;border-radius:50%;background:#34D399;vertical-align:middle"></span> Target 85</span></div>
+        <div class="card-subtitle">World map view &middot; Bubble size = cases, color = QA Score &middot; Click a region bubble to drill down to countries &rarr;</div>
+        <div id="lgQaMap">
+          <div class="qa-crumb" id="qaCrumb"></div>
+          <div class="qa-map-wrap">
+            <div class="qa-lmap" id="qaLeaflet"></div>
+            <div class="qa-overlay" id="qaOverlay"></div>
+          </div>
+          <div class="qa-legend">
+            <span><span class="dot" style="background:#A50034"></span>&lt;75 Needs Coaching</span>
+            <span><span class="dot" style="background:#F97316"></span>75&ndash;80 Average</span>
+            <span><span class="dot" style="background:#F59E0B"></span>80&ndash;85 Good</span>
+            <span><span class="dot" style="background:#34D399"></span>85&ndash;90 Very Good</span>
+            <span><span class="dot" style="background:#10B981"></span>&ge;90 Excellent</span>
+            <span style="margin-left:6px">&#9679; Bubble size = Cases</span>
+          </div>
+        </div>
       </div>
       <div class="card">
         <div class="card-title">Category Performance Heatmap</div>
@@ -1303,6 +1361,52 @@ const REGION_COLORS = {English:'#FD312E', EUROPE:'#A50034', LATAM:'#F59E0B', MEA
 const REGION_DISPLAY_NAME = {English:'ENGLISH', EUROPE:'EUROPE', LATAM:'LATAM', MEA:'MEA', CIS:'CIS', ASIA:'ASIA', India:'INDIA'};
 const CATEGORIES = ['Reliability','Friendliness','Proactiveness','Communication Skills','Physical Environment'];
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun'];
+/* === v39: Geo coordinates per subsidiary (lat,lng) for QA Score map === */
+const COUNTRY_COORDS = {
+  LGEAI:[39,-98], LGECI:[56,-106], LGEAP:[-25,133], LGEUK:[54,-2],
+  LGEAG:[47.5,14], LGECK:[49.8,15.5], LGEFS:[46,2], LGEDG:[51,10], LGEHS:[39,22],
+  LGEMK:[47,19.5], LGEIS:[42.8,12.8], LGELA:[57,25], LGEBN:[52.1,5.3], LGEPL:[52,19],
+  LGEPT:[39.5,-8], LGERO:[46,25], LGEES:[40,-3.7], LGESW:[62,15],
+  LGEAR:[-38,-64], LGESP:[-10,-52], LGECL:[-35,-71], LGECB:[4,-73], LGEMS:[23,-102],
+  LGEPS:[9,-80], LGEPR:[-10,-76],
+  LGEAS:[28,3], LGEEG:[26,30], LGELF:[31,36], LGEEF:[0,38], LGEMC:[32,-6], LGEAF:[9,8],
+  LGESJ:[24,45], LGESA:[-30,25], LGETK:[39,35], LGEGF:[24,54],
+  LGERA:[48,67], LGEAK:[61,90],
+  LGECH:[35,104], LGEHK:[22.3,114.2], LGEID:[-2,118], LGEJP:[36,138], LGEML:[4,102],
+  LGEPH:[13,122], LGESL:[1.35,103.8], LGETT:[23.7,121], LGETH:[15,101], LGEVH:[16,108],
+  LGEIL:[22,79]
+};
+/* Region centroid + drill zoom */
+const REGION_MAP_META = {
+  English:{pos:[25,-40], zoom:2},
+  EUROPE: {pos:[50,12],  zoom:4},
+  LATAM:  {pos:[-15,-65],zoom:3},
+  MEA:    {pos:[15,25],  zoom:3},
+  CIS:    {pos:[54,78],  zoom:3},
+  ASIA:   {pos:[12,115], zoom:3},
+  India:  {pos:[22,79],  zoom:4}
+};
+/* QA Score color bins (aligned with dashboard scoreColor scale) */
+const QA_MAP_BINS = [
+  {max:75, color:'#A50034', label:'Needs Coaching (&lt; 75)'},
+  {max:80, color:'#F97316', label:'Average (75&ndash;80)'},
+  {max:85, color:'#F59E0B', label:'Good (80&ndash;85)'},
+  {max:90, color:'#34D399', label:'Very Good (85&ndash;90)'},
+  {max:Infinity, color:'#10B981', label:'Excellent (&ge; 90)'}
+];
+function qaMapColor(v){ if(v===null||v===undefined) return '#CBC8C2'; for(const b of QA_MAP_BINS){ if(v<b.max) return b.color; } return '#10B981'; }
+/* === v41: Answered call (분모) per subsidiary — source of truth for map Total Cases & bubble size === */
+const ANSWERED_CALLS = {
+  LGEAI:133007, LGECI:23102, LGEAP:18798, LGEUK:13600,
+  LGEAG:600, LGECK:2758, LGEFS:5282, LGEDG:12843, LGEHS:4882, LGEMK:3074,
+  LGEIS:9087, LGELA:636, LGEBN:2385, LGEPL:3081, LGEPT:3524, LGERO:644, LGEES:18257, LGESW:5705,
+  LGEAR:1258, LGESP:4940, LGECL:2334, LGECB:9377, LGEMS:10917, LGEPS:2181, LGEPR:2576,
+  LGEAS:8358, LGEEG:33767, LGELF:6562, LGEEF:1887, LGEMC:1376, LGEAF:0, LGESJ:4767, LGESA:3083, LGETK:13244, LGEGF:5916,
+  LGERA:6350, LGEAK:2673,
+  LGECH:21011, LGEHK:5050, LGEID:11459, LGEJP:1689, LGEML:18149, LGEPH:9081, LGESL:4663, LGETT:17188, LGETH:18597, LGEVH:29020,
+  LGEIL:1307275
+};
+function answeredCalls(code){ return (ANSWERED_CALLS[code]!=null)?ANSWERED_CALLS[code]:0; }
 const HEATMAP_DATA = SUBSIDIARIES.map(s => {
   const base = s.score, seed = s.code.charCodeAt(0)+s.code.charCodeAt(1);
   return {code:s.code, scores:[Math.max(60, Math.min(100, base + ((seed%70)/10 - 3.5))),Math.max(60, Math.min(100, base + ((seed%50)/10 - 2.5))),Math.max(60, Math.min(100, base + ((seed%60)/10 - 3.0))),Math.max(60, Math.min(100, base + ((seed%45)/10 - 2.2))),Math.max(60, Math.min(100, base + ((seed%40)/10 - 2.0)))]};
@@ -1736,6 +1840,168 @@ const regionBandsPlugin = {
 };
 
 let bulletChart, trendChart;
+/* ===== v39: QA Score map state + renderer ===== */
+let qaMap=null, qaLayer=null, qaDrill=null, qaMapData=[], qaCM=1, qaMult=1, qaFiltRaw=[];
+/* v40: Cases-banded bubble radius (shared across region & country levels) */
+/* v41: proportional radius relative to the max Cases in the CURRENT view (region or drilled country level) */
+function qaBubbleRadius(count,maxCount,minR,spanR){
+  minR = (minR!=null)?minR:9; spanR = (spanR!=null)?spanR:34;
+  const m = Math.max(1, maxCount||1);
+  return minR + spanR*Math.sqrt(Math.max(0,count)/m);
+}
+/* v41: SINGLE source of truth for KPIs — identical math to the top KPI cards.
+   Operates on RAW subsidiary objects (raw .score / .prev), applies qaMult (NPS) & qaCM (channel/date),
+   and uses Answered call (분모) for case totals. Used by BOTH the KPI cards and the map overlay. */
+function qaComputeKPI(rawSubs){
+  if(!rawSubs||!rawSubs.length) return null;
+  const n = rawSubs.length;
+  const avg = Math.min(100, (rawSubs.reduce((x,s)=>x+s.score,0)/n) * qaMult);
+  const prevAvg = rawSubs.reduce((x,s)=>x+s.prev,0)/n;
+  const total = Math.max(0, Math.floor(rawSubs.reduce((x,s)=>x+answeredCalls(s.code),0)*qaCM));
+  const analyzed = Math.floor(total*0.182);
+  const rate = total>0 ? (analyzed/total*100) : 18.2;
+  const coach = rawSubs.filter(s=>s.score<80).length/n*100;
+  const crit = Math.max(rawSubs.filter(s=>s.score<75).length, 5);
+  const excellent = Math.round(rawSubs.filter(s=>s.score>=90).length/n*100);
+  return {avg:avg, delta:avg-prevAvg, prevAvg:prevAvg, total:total, analyzed:analyzed, rate:rate, coach:coach, crit:crit, excellent:excellent, subsN:n};
+}
+function qaInitMap(){
+  qaMap = L.map('qaLeaflet',{worldCopyJump:true,minZoom:1,maxZoom:7,scrollWheelZoom:true,attributionControl:true}).setView([25,15],2);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+    {attribution:'&copy; OpenStreetMap &copy; CARTO',maxZoom:19,subdomains:'abcd'}).addTo(qaMap);
+  qaLayer = L.layerGroup().addTo(qaMap);
+  const lg = L.control({position:'bottomright'});
+  lg.onAdd=function(){
+    const d=L.DomUtil.create('div','qa-map-legend');
+    let h='<div class="lgt">QA Score</div>';
+    QA_MAP_BINS.forEach(b=>{ h+='<div class="row"><span class="sw" style="background:'+b.color+'"></span>'+b.label+'</div>'; });
+    h+='<div class="row sz" style="font-weight:800;color:#1f2430;border-top:1px solid #eef0f3;margin-top:7px;padding-top:7px">Bubble size &prop; Cases</div>';
+    const sizeBands=[['Low',10],['Mid',17],['Max',26]];
+    h+='<div class="szrow">';
+    sizeBands.forEach(sb=>{ const px=sb[1]; h+='<span class="szitem"><span class="szdot" style="width:'+px+'px;height:'+px+'px"></span>'+sb[0]+'</span>'; });
+    h+='</div>';
+    h+='<div class="row sz" style="border:none;margin-top:4px;padding-top:0;font-size:9px">relative to current view</div>';
+    d.innerHTML=h; return d;
+  };
+  lg.addTo(qaMap);
+}
+function qaDrillTo(region){ const m=REGION_MAP_META[region]||{pos:[20,0],zoom:3}; qaDrill=region; qaMap.flyTo(m.pos, m.zoom||3,{duration:.6}); qaPaint(); }
+function qaDrillOut(){
+  qaDrill=null;
+  /* v43: "All Regions" must truly reset. If a region filter is active, clear it back to 'all'
+     so the map shows every region instead of re-drilling into the single filtered region. */
+  const sel = document.getElementById('f-region');
+  if(sel && sel.value!=='all'){
+    sel.value='all';
+    onRegionChange();   /* rebuilds subsidiary set + refreshMain() -> repopulates qaFiltRaw(all) -> renderQaMap -> qaPaint */
+  } else {
+    qaPaint();
+  }
+  if(qaMap) qaMap.flyTo([25,15],2,{duration:.6});
+}
+function qaBubble(item,label,clickFn){
+  const radius = qaBubbleRadius(item.count, item.maxCount, item.minR, item.spanR);
+  const col = qaMapColor(item.score);
+  const scoreTxt = item.score!==null&&item.score!==undefined? item.score.toFixed(0):'\u2013';
+  const ov = {name:label, col, score:item.score, count:item.count, isRegion:item.isRegion, kpi:item.kpi};
+  const m = L.circleMarker(item.pos,{radius:radius,color:'#ffffff',weight:1,fillColor:col,fillOpacity:.62}).addTo(qaLayer);
+  m.bindTooltip('<b>'+label+'</b><br>Avg QA Score: '+(item.score!==null?item.score.toFixed(1):'\u2013')+' / 100<br>'+
+    'Total Cases: '+Math.round(item.count).toLocaleString()+
+    (qaDrill===null?'<br><i>Click \u2192 country detail</i>':''),
+    {className:'qa-tip',direction:'top',offset:[0,-radius],sticky:true});
+  m.on('mouseover',()=>qaShowOverlay(ov)); m.on('mouseout',qaHideOverlay);
+  const lbl = L.marker(item.pos,{icon:L.divIcon({className:'qa-bub-label',
+    html:'<span class="pill" style="background:'+col+'">'+scoreTxt+'</span>',iconSize:[36,18],iconAnchor:[18,9]}),
+    interactive:true}).addTo(qaLayer);
+  lbl.on('mouseover',()=>qaShowOverlay(ov)); lbl.on('mouseout',qaHideOverlay);
+  if(clickFn){ m.on('click',clickFn); lbl.on('click',clickFn); }
+}
+function renderQaMap(){
+  if(!document.getElementById('qaLeaflet')) return;
+  if(!qaMap) qaInitMap();
+  qaPaint();
+  setTimeout(()=>{ if(qaMap) qaMap.invalidateSize(); }, 120);
+}
+function qaPaint(){
+  if(!qaLayer) return;
+  qaLayer.clearLayers();
+  /* v41: drive everything from the RAW filtered subsidiaries (same set as KPI cards) */
+  const regionsPresent = REGIONS.filter(r=>qaFiltRaw.some(d=>d.region===r));
+  /* if a region filter narrowed data to a single region, auto-drill into it */
+  if(qaDrill && !regionsPresent.includes(qaDrill)) qaDrill = null;
+  if(qaDrill===null && regionsPresent.length===1) qaDrill = regionsPresent[0];
+
+  if(qaDrill===null){
+    /* aggregate by region — KPIs computed with the shared function (matches KPI cards) */
+    const agg = regionsPresent.map(reg=>{
+      const raw = qaFiltRaw.filter(d=>d.region===reg);
+      const kpi = qaComputeKPI(raw);
+      const meta = REGION_MAP_META[reg]||{pos:[20,0]};
+      return {region:reg, label:(REGION_DISPLAY_NAME[reg]||reg), score:+kpi.avg.toFixed(1), count:kpi.total, pos:meta.pos, kpi:kpi};
+    });
+    const maxCount = Math.max(...agg.map(a=>a.count), 1);
+    agg.sort((a,b)=>b.count-a.count).forEach(a=>{
+      qaBubble({pos:a.pos, score:a.score, count:a.count, maxCount:maxCount, minR:12, spanR:34, isRegion:true, kpi:a.kpi},
+        a.label, ()=>qaDrillTo(a.region));
+    });
+  } else {
+    const raw = qaFiltRaw.filter(d=>d.region===qaDrill);
+    const items = raw.map(s=>{
+      const kpi = qaComputeKPI([s]);
+      return {code:s.code, name:s.name, score:+kpi.avg.toFixed(1), count:kpi.total, pos:(COUNTRY_COORDS[s.code]||(REGION_MAP_META[s.region]&&REGION_MAP_META[s.region].pos)||[20,0]), kpi:kpi};
+    });
+    const maxCount = Math.max(...items.map(s=>s.count), 1);
+    items.sort((a,b)=>b.count-a.count).forEach(s=>{
+      qaBubble({pos:s.pos, score:s.score, count:s.count, maxCount:maxCount, minR:9, spanR:30, isRegion:false, kpi:s.kpi},
+        s.name+' ('+s.code+')', ()=>goPage('detail', s.code));
+    });
+  }
+  qaRenderCrumb();
+}
+function qaRenderCrumb(){
+  const c=document.getElementById('qaCrumb'); if(!c) return;
+  if(qaDrill===null){
+    c.innerHTML='<span class="lvl">&#127758; All Regions</span>';
+  } else {
+    const nm = REGION_DISPLAY_NAME[qaDrill]||qaDrill;
+    c.innerHTML='<button class="bk" type="button">&larr; All Regions</button><span>&rsaquo;</span><span class="lvl">'+nm+' &middot; by Country</span>';
+    const b=c.querySelector('.bk'); if(b) b.onclick=qaDrillOut;
+  }
+}
+function qaShowOverlay(d){
+  const ov=document.getElementById('qaOverlay'); if(!ov) return;
+  const f=(v,u='')=> (v!==null&&v!==undefined)? v.toFixed(1)+u:'\u2013';
+  const k=d.kpi||{};
+  /* vs Target 85 — derived from the SAME Average QA Score shown in the KPI cards */
+  const gap = (k.avg!==undefined)? (k.avg-85) : null;
+  let gapHtml;
+  if(gap!==null){
+    const cls = gap>=0?'pos':'neg';
+    gapHtml = '<div class="ov-kpi"><div class="k">&#127919; vs Target 85</div><div class="v '+cls+'">'+(gap>=0?'+':'')+gap.toFixed(1)+'<small>pt</small></div></div>';
+  } else {
+    gapHtml = '<div class="ov-kpi"><div class="k">&#127919; vs Target 85</div><div class="v">\u2013</div></div>';
+  }
+  /* Average QA Score with vs last month delta (identical to KPI card) */
+  const dcls = (k.delta>=0)?'pos':'neg';
+  const avgHtml = '<div class="ov-kpi"><div class="k">&#127942; Average QA Score</div><div class="v">'+(k.avg!==undefined?f(k.avg):'\u2013')+'<small>%</small></div>'+
+              (k.delta!==undefined?'<div class="d '+dcls+'">'+(k.delta>=0?'\u25B2 ':'\u25BC ')+Math.abs(k.delta).toFixed(1)+'pt vs last month</div>':'')+'</div>';
+  const subtitle = (d.isRegion && k.subsN!==undefined) ? '<div class="ov-subs">'+k.subsN+' subsidiaries</div>' : '';
+  ov.innerHTML =
+    '<div class="ov-name"><span class="swb" style="background:'+d.col+'"></span>'+d.name+'</div>'+
+    subtitle+
+    '<div class="ov-grid">'+
+      avgHtml+
+      gapHtml+
+      '<div class="ov-kpi"><div class="k">&#128202; AI Analysis Rate</div><div class="v">'+(k.rate!==undefined?f(k.rate):'\u2013')+'<small>%</small></div></div>'+
+      '<div class="ov-kpi"><div class="k">&#127919; Coaching Required</div><div class="v">'+(k.coach!==undefined?f(k.coach):'\u2013')+'<small>%</small></div></div>'+
+      '<div class="ov-kpi"><div class="k">&#9888; Critical Errors</div><div class="v">'+(k.crit!==undefined?k.crit:'\u2013')+'<small>cases</small></div></div>'+
+      '<div class="ov-kpi"><div class="k">&#11088; Excellent (&ge;90)</div><div class="v">'+(k.excellent!==undefined?k.excellent:'\u2013')+'<small>%</small></div></div>'+
+    '</div>'+
+    '<div class="ov-total"><span class="k">&#128101; Total Cases</span><span class="v">'+Math.round((k.total!==undefined?k.total:d.count)).toLocaleString()+'</span></div>'+
+    (qaDrill===null?'<div class="ov-hint">Click a bubble to drill into countries</div>':'<div class="ov-hint">Click a bubble to open subsidiary detail</div>');
+  ov.classList.add('show');
+}
+function qaHideOverlay(){ const ov=document.getElementById('qaOverlay'); if(ov) ov.classList.remove('show'); }
 function getFilteredSubs(){
   const r = document.getElementById('f-region').value;
   let f = r==='all' ? SUBSIDIARIES : SUBSIDIARIES.filter(s=>s.region===r);
@@ -1756,54 +2022,38 @@ function renderMain(){
   let cm=1;
   if(!selectedChannels.has('all')) cm = selectedChannels.size*0.4;
   if(dateRangeActive){ const d = Math.max(1, Math.round((new Date(savedDateTo)-new Date(savedDateFrom))/86400000)); cm *= Math.min(2, d/30); }
+  /* v41: KPI cards now use the SAME shared function (qaComputeKPI) as the map overlay,
+     so both always match. Case totals use Answered call (분모). */
+  qaMult = mult; qaCM = cm; qaFiltRaw = filt.slice();
   if(filt.length===0){
     ['kpi-avg','kpi-rate','kpi-analyzed','kpi-total','kpi-coach','kpi-crit','kpi-excellent'].forEach(id=>{const el=document.getElementById(id); if(el) el.textContent='-';});
   } else {
-    const avg = (filt.reduce((x,s)=>x+s.score,0)/filt.length)*mult;
-    const prevAvg = filt.reduce((x,s)=>x+s.prev,0)/filt.length;
-    document.getElementById('kpi-avg').textContent = Math.min(100,avg).toFixed(1);
-    const d = avg-prevAvg;
+    const K = qaComputeKPI(filt);
+    document.getElementById('kpi-avg').textContent = K.avg.toFixed(1);
     const dEl = document.getElementById('kpi-avg-d');
-    if(dEl){ dEl.innerHTML = (d>=0?'\u25B2 ':'\u25BC ')+Math.abs(d).toFixed(1)+'pt vs last month'; dEl.className = 'kpi-delta '+(d>=0?'up':'down'); }
-    const total = Math.floor(filt.reduce((x,s)=>x+s.count,0)*cm);
-    const analyzed = Math.floor(total * 0.182);
-    document.getElementById('kpi-total').textContent = total.toLocaleString();
-    document.getElementById('kpi-analyzed').textContent = analyzed.toLocaleString();
-    document.getElementById('kpi-rate').textContent = ((analyzed/total)*100).toFixed(1);
-    const coachCount = filt.filter(s=>s.score<80).length;
-    document.getElementById('kpi-coach').textContent = (coachCount/filt.length*100).toFixed(1);
-    const crit = filt.filter(s=>s.score<75).length;
-    document.getElementById('kpi-crit').textContent = Math.max(crit, 5);
-    const excellent = filt.filter(s=>s.score>=90).length;
-    document.getElementById('kpi-excellent').textContent = Math.round(excellent/filt.length*100);
+    if(dEl){ dEl.innerHTML = (K.delta>=0?'\u25B2 ':'\u25BC ')+Math.abs(K.delta).toFixed(1)+'pt vs last month'; dEl.className = 'kpi-delta '+(K.delta>=0?'up':'down'); }
+    document.getElementById('kpi-total').textContent = K.total.toLocaleString();
+    document.getElementById('kpi-analyzed').textContent = K.analyzed.toLocaleString();
+    document.getElementById('kpi-rate').textContent = K.rate.toFixed(1);
+    document.getElementById('kpi-coach').textContent = K.coach.toFixed(1);
+    document.getElementById('kpi-crit').textContent = K.crit;
+    document.getElementById('kpi-excellent').textContent = K.excellent;
   }
   const sorted = [...filt].sort((a,b)=>{
     const ra=REGIONS.indexOf(a.region), rb=REGIONS.indexOf(b.region);
     if(ra!==rb) return ra-rb;
     return a.gdpRank - b.gdpRank;
   });
-  const labels = sorted.map(s => s.code);
-  const data = sorted.map(s=>+(s.score*mult).toFixed(1));
-  const bgColors = sorted.map(s=>REGION_COLORS[s.region]||'#A50034');
-  const subRef = sorted.slice();
-  if(bulletChart) bulletChart.destroy();
-  bulletChart = new Chart(document.getElementById('bulletChart').getContext('2d'),{
-    type:'bar',
-    data:{labels:labels, datasets:[{label:'QA Score', data:data, backgroundColor:bgColors, borderRadius:4, barThickness:Math.max(10, Math.min(18, 460/Math.max(1,labels.length)))}]},
-    options:{
-      indexAxis:'y', responsive:true, maintainAspectRatio:false,
-      layout:{padding:{left:4, right:8, top:4, bottom:4}},
-      onClick:(e,el)=>{ if(el.length){ const s = subRef[el[0].index]; if(s) goPage('detail', s.code); } },
-      onHover:(e,el)=>{ e.native.target.style.cursor = (el.length && subRef[el[0].index])?'pointer':'default'; },
-      plugins:{
-        regionBands: {subRef:subRef},
-        legend:{display:false},
-        tooltip:{callbacks:{label:(ctx)=>{ const s=subRef[ctx.dataIndex]; if(!s) return ''; return ['Country: '+s.name,'Region: '+s.region,'Score: '+(s.score*mult).toFixed(1)+' / 100','GDP Rank: #'+s.gdpRank,'Click to view detail \u2192'];}}}
-      },
-      scales:{x:{min:60,max:100,grid:{color:'#F0F0F2'},ticks:{font:{size:11}}}, y:{grid:{display:false},ticks:{font:{size:11,weight:'600'},autoSkip:false}}}
-    },
-    plugins:[{id:'tl', afterDraw(c){const{ctx,chartArea:{top,bottom},scales:{x}}=c; const xp=x.getPixelForValue(85); ctx.save(); ctx.strokeStyle='#FD312E'; ctx.lineWidth=2; ctx.setLineDash([6,4]); ctx.beginPath(); ctx.moveTo(xp,top); ctx.lineTo(xp,bottom); ctx.stroke(); ctx.fillStyle='#FD312E'; ctx.font='600 11px Roboto'; ctx.fillText('Target 85', xp+4, top+12); ctx.restore();}}, regionBandsPlugin]
-  });
+  /* v39/v40/v41: feed the QA Score map with the currently filtered subsidiaries (mult applied)
+     v41: Total Cases / bubble size use Answered call (분모) as the source of truth */
+  qaCM = cm;
+  qaMapData = filt.map(s=>({
+    code:s.code, name:s.name, region:s.region,
+    score:+Math.min(100, s.score*mult).toFixed(1),
+    prev:s.prev, count:answeredCalls(s.code), gdpRank:s.gdpRank,
+    pos:(COUNTRY_COORDS[s.code]||(REGION_MAP_META[s.region]&&REGION_MAP_META[s.region].pos)||[20,0])
+  }));
+  renderQaMap();
 
   /* v8/v10: Heatmap legend */
   const legendBar = document.getElementById('heatmap-legend');
@@ -3091,6 +3341,7 @@ renderRawDataTable();
       try{ sessionStorage.setItem('qaEmail', val); }catch(e){}
       gate.style.display = 'none';
       document.body.classList.remove('gate-locked');
+      try{ setTimeout(function(){ if(typeof qaMap!=='undefined' && qaMap){ qaMap.invalidateSize(); if(typeof qaPaint==='function') qaPaint(); } }, 200); }catch(e){}
     } else {
       showErr('This email address is not authorized. Please contact the administrator.');
     }
